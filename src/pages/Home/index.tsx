@@ -131,7 +131,11 @@ export const Home = () => {
                     <span>
                       R$ <strong>{product.price}</strong>
                     </span>
-                    <CartBox>
+                    <CartBox
+                      onClick={() =>
+                        navigate(`/${companyId}/product/${product.id}`)
+                      }
+                    >
                       <MdShoppingCart color='white' />
                     </CartBox>
                   </FooterBox>
