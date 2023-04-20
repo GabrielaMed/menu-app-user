@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
-import { UserHome } from '../pages/UserHome';
+import { Home } from '../pages/Home';
 
 export const AppRoutes = () => (
   <Routes>
-    <Route path='/' element={<UserHome />} />
+    <Route path='/' element={<Home />} />
   </Routes>
 );

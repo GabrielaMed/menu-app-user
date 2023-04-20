@@ -19,9 +19,8 @@ import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import ReactLoading from 'react-loading';
 import { MdShoppingCart } from 'react-icons/md';
-import { HomeHeader } from './components/HomeHeader';
 
-export const UserHome = () => {
+export const Home = () => {
   const companyId = `${process.env.REACT_APP_COMPANY_ID}`;
   const [loading, setLoading] = useState(false);
   const [productsData, setProductsData] = useState<IProduct[]>([]);
@@ -88,7 +87,7 @@ export const UserHome = () => {
 
   return (
     <Container>
-      <HomeHeader />
+      <Header />
       {loading && (
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <ReactLoading

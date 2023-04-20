@@ -1,7 +1,7 @@
 import { MdLocationOn, MdShoppingCart } from 'react-icons/md';
 import { CartBox, Container, HoldLocationAndCart, LocationBox } from './style';
 
-export const HomeHeader = () => {
+export const Header = () => {
   return (
     <Container>
       <span>LOGO</span>
