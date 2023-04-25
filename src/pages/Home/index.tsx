@@ -19,6 +19,7 @@ import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import ReactLoading from 'react-loading';
 import { MdShoppingCart } from 'react-icons/md';
+import { v4 as uuidv4 } from 'uuid';
 
 export const Home = () => {
   const companyId = `${process.env.REACT_APP_COMPANY_ID}`;
@@ -31,6 +32,12 @@ export const Home = () => {
   );
   const [toastMessage, setToastMessage] = useState('');
   const navigate = useNavigate();
+  let visitorUuid = localStorage.getItem('visitorUuid');
+
+  if (!visitorUuid) {
+    visitorUuid = uuidv4();
+    localStorage.setItem('visitorUuid', visitorUuid);
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -129,7 +136,12 @@ export const Home = () => {
                   </TextBox>
                   <FooterBox>
                     <span>
-                      R$ <strong>{product.price}</strong>
+                      <strong>
+                        {Number(product.price).toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        })}
+                      </strong>
                     </span>
                     <CartBox
                       onClick={() =>
