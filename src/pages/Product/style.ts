@@ -4,6 +4,7 @@ export const Container = styled.div`
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+  padding-bottom: 5rem;
 `;
 
 export const Navbar = styled.div`
@@ -36,6 +37,23 @@ export const ProductInfoBox = styled.div`
   padding: 1rem;
 `;
 
+export const ProductImage = styled.img`
+  object-fit: cover;
+  height: 15rem;
+
+  @media (min-width: 480px) {
+    height: 25rem;
+  }
+
+  @media (min-width: 700px) {
+    min-height: 35rem;
+  }
+
+  @media (min-width: 1000px) {
+    object-fit: contain;
+  }
+`;
+
 export const ProductName = styled.h4``;
 
 export const ProductDescription = styled.p`
@@ -45,9 +63,9 @@ export const ProductDescription = styled.p`
 
 export const ProductPrice = styled.h6``;
 
-export const AdditionalsDivider = styled.div`
+export const Divider = styled.div`
   width: 100%;
-  height: 5rem;
+  height: 4.6rem;
   display: flex;
   flex-direction: column;
   justify-content: left;
@@ -98,8 +116,27 @@ export const CounterBox = styled.div`
   gap: 0.5rem;
 `;
 
+export const ObservationBox = styled.div`
+  width: 100%;
+  height: 10rem;
+  padding: 1rem;
+`;
+
+export const ObservationTextArea = styled.textarea`
+  all: unset;
+  font-size: 16px;
+  border-radius: 6px;
+  background-color: #fafafa;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  word-wrap: break-word;
+  word-break: break-all;
+`;
+
 export const Footer = styled.footer`
-  background-color: #ebe5f9;
+  background-color: #f3f2f2;
   height: 5rem;
   display: flex;
   justify-content: space-between;
@@ -109,10 +146,21 @@ export const Footer = styled.footer`
   padding: 1rem;
 `;
 
+export const FooterCounterBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ebe5f9;
+  padding: 1rem;
+  border-radius: 6px;
+`;
+
 export const FinishedButton = styled.button`
   all: unset;
   background-color: #4b2995;
-  width: 10rem;
+  min-width: 10rem;
+  gap: 1rem;
+  padding: 0.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
