@@ -28,9 +28,12 @@ import { IProduct } from '../../utils/Interface/Product';
 import { AxiosError } from 'axios';
 import { Carousel } from 'react-bootstrap';
 import { IAdditional } from '../../utils/Interface/Additional';
+import { IOrder } from '../../utils/Interface/Order';
+import { OrderStatus } from '../../utils/Enum/OrderStatus';
 
 export const Product = () => {
   const [productData, setProductData] = useState<IProduct>({});
+  const [orderData, setOrderData] = useState<IOrder>();
   const [showToast, setShowToast] = useState(false);
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
     IToastType.unknow
@@ -108,7 +111,7 @@ export const Product = () => {
     }
   }, [productId]);
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     let visitorUuid = localStorage.getItem('visitorUuid');
     const additionals = productData?.additional?.filter(
       (item) => item.quantity > 0
@@ -119,7 +122,26 @@ export const Product = () => {
       visitorUuid,
     };
 
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', order);
+    try {
+      const response = await api.post('order', {
+        visitorUuid,
+        statusOrder: OrderStatus.iniciado,
+        companyId,
+        observation,
+      });
+
+      console.log('>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<', response);
+      if (response.data) {
+        setOrderData(response.data);
+      }
+    } catch (err) {
+      console.log(err);
+      if (err instanceof AxiosError) {
+        setShowToast(true);
+        setToastMessageType(IToastType.error);
+        setToastMessage(`Error: ${err?.response?.data}`);
+      }
+    }
   };
 
   return (
