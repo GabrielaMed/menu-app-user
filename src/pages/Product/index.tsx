@@ -30,17 +30,19 @@ import { Carousel } from 'react-bootstrap';
 import { IAdditional } from '../../utils/Interface/Additional';
 import { IOrder } from '../../utils/Interface/Order';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
+import { ToastMessage } from '../../components/Toast';
 
 export const Product = () => {
   const [productData, setProductData] = useState<IProduct>({});
   const [orderData, setOrderData] = useState<IOrder>();
+  const [orderExists, setOrderExists] = useState<IOrder>();
   const [showToast, setShowToast] = useState(false);
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
   const { productId, companyId } = useParams();
-  const [countProduct, setCountProduct] = useState(1);
+  const [productQuantity, setProductQuantity] = useState(1);
   const total = productData.additional?.reduce(
     (acc, product) =>
       acc + (product?.price ? product.price * product.quantity : 0),
@@ -48,6 +50,7 @@ export const Product = () => {
   );
   const navigate = useNavigate();
   const [observation, setObservation] = useState('');
+  let visitorUuid = localStorage.getItem('visitorUuid');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,17 +114,7 @@ export const Product = () => {
     }
   }, [productId]);
 
-  const handleComplete = async () => {
-    let visitorUuid = localStorage.getItem('visitorUuid');
-    const additionals = productData?.additional?.filter(
-      (item) => item.quantity > 0
-    );
-    const order = {
-      productData: { productId, additionals },
-      observation,
-      visitorUuid,
-    };
-
+  const handleCreateOrder = async () => {
     try {
       const response = await api.post('order', {
         visitorUuid,
@@ -129,13 +122,10 @@ export const Product = () => {
         companyId,
         observation,
       });
-
-      console.log('>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<', response);
       if (response.data) {
-        setOrderData(response.data);
+        return setOrderData(response.data);
       }
     } catch (err) {
-      console.log(err);
       if (err instanceof AxiosError) {
         setShowToast(true);
         setToastMessageType(IToastType.error);
@@ -144,137 +134,211 @@ export const Product = () => {
     }
   };
 
-  return (
-    <Container>
-      <Navbar>
-        <span>
-          <MdArrowBack
-            size={24}
-            style={{ cursor: 'pointer' }}
-            onClick={() => navigate(`/${companyId}}`)}
-          />
-        </span>
-        <span>Detalhes do produto</span>
-      </Navbar>
-      <ProductInfoBox>
-        <Carousel
-          style={{
-            background: 'black',
-            marginBottom: '1rem',
-            borderRadius: '6px',
-          }}
-        >
-          {productData?.image?.map((item, idx) => {
-            return (
-              <Carousel.Item key={idx}>
-                <ProductImage
-                  className='d-block w-100'
-                  src={process.env.REACT_APP_IMAGE_URL + item?.fileName}
-                  alt=''
-                />
-              </Carousel.Item>
-            );
-          })}
-        </Carousel>
-        <ProductName>{productData.name}</ProductName>
-        <ProductDescription>{productData.description}</ProductDescription>
-        <ProductPrice>
-          {Number(productData.price).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-          })}
-        </ProductPrice>
-      </ProductInfoBox>
-      {productData.additional ? (
-        <>
-          <Divider>
-            Deseja algum adicional?
-            <span>Escolha até {productData?.additional?.length} opções.</span>
-          </Divider>
-          <AdditionalsList>
-            {productData.additional?.map((item, idx) => (
-              <AdditionalsListItem key={idx}>
-                <AdditionalName>{item.name}</AdditionalName>
-                <AdditionalEnd>
-                  <AdditionalPrice>
-                    {Number(item.price).toLocaleString('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL',
-                    })}
-                  </AdditionalPrice>
-                  <CounterBox>
-                    <MdRemove
-                      style={{ cursor: 'pointer' }}
-                      onClick={() =>
-                        setProductData((state) => ({
-                          ...state,
-                          additional: state?.additional?.map((product) =>
-                            item.id === product.id && item.quantity > 0
-                              ? { ...item, quantity: item?.quantity - 1 }
-                              : product
-                          ),
-                        }))
-                      }
-                    />
-                    {item.quantity}
-                    <MdAdd
-                      style={{ cursor: 'pointer' }}
-                      onClick={() =>
-                        setProductData((state) => ({
-                          ...state,
-                          additional: state?.additional?.map((product) =>
-                            item.id === product.id
-                              ? { ...item, quantity: item?.quantity + 1 }
-                              : product
-                          ),
-                        }))
-                      }
-                    />
-                  </CounterBox>
-                </AdditionalEnd>
-              </AdditionalsListItem>
-            ))}
-          </AdditionalsList>
-        </>
-      ) : (
-        <span></span>
-      )}
+  const handleRelateProductAndOrder = async (orderId: string) => {
+    try {
+      const response = await api.post(`order/${orderId}`, {
+        productId,
+        observation,
+        quantity: productQuantity,
+      });
+      if (response.data) {
+        setOrderData(response.data);
+      }
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setShowToast(true);
+        setToastMessageType(IToastType.error);
+        setToastMessage(`Error: ${err?.response?.data}`);
+      }
+    }
 
-      <Divider>Alguma observação?</Divider>
-      <ObservationBox>
-        <ObservationTextArea
-          placeholder=' Ex: tirar cebola, tirar tomate...'
-          onChange={(e) => setObservation(e.target.value)}
-        ></ObservationTextArea>
-      </ObservationBox>
-      <Footer>
-        <FooterCounterBox>
-          <MdRemove
-            style={{ cursor: 'pointer' }}
-            onClick={() => {
-              setCountProduct(countProduct - 1 < 1 ? 1 : countProduct - 1);
-            }}
-          />
-          {countProduct}
-          <MdAdd
-            style={{ cursor: 'pointer' }}
-            onClick={() => {
-              setCountProduct(countProduct + 1);
-            }}
-          />
-        </FooterCounterBox>
-        <FinishedButton onClick={() => handleComplete()}>
-          Concluir
+    const options = {
+      pathname: `/${companyId}/cart`,
+      state: { orderId: orderData?.id },
+    };
+
+    navigate(options, { replace: true });
+  };
+
+  const handleComplete = async () => {
+    const additionals = productData?.additional?.filter(
+      (item) => item.quantity > 0
+    );
+
+    try {
+      const response = await api.get(
+        `order/visitor/${visitorUuid}/${companyId}`
+      );
+
+      if (response.data) {
+        const orderIniciado = response.data.filter(
+          (item: IOrder) => item.statusOrder === OrderStatus.iniciado
+        )[0];
+        setOrderExists(orderIniciado);
+      } else {
+        await handleCreateOrder();
+      }
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setShowToast(true);
+        setToastMessageType(IToastType.error);
+        setToastMessage(`Error: ${err?.response?.data}`);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const relates = async () => {
+      if (orderExists?.id) {
+        await handleRelateProductAndOrder(orderExists?.id);
+      }
+    };
+
+    relates();
+  }, [orderExists]);
+
+  return (
+    <>
+      <ToastMessage
+        setShowToast={setShowToast}
+        showToast={showToast}
+        toastMessage={toastMessage}
+        toastMessageType={toastMessageType}
+      />
+      <Container>
+        <Navbar>
           <span>
-            {(
-              Number(total || 0) + Number(productData?.price || 0)
-            ).toLocaleString('pt-BR', {
+            <MdArrowBack
+              size={24}
+              style={{ cursor: 'pointer' }}
+              onClick={() => navigate(`/${companyId}}`)}
+            />
+          </span>
+          <span>Detalhes do produto</span>
+        </Navbar>
+        <ProductInfoBox>
+          <Carousel
+            style={{
+              background: 'black',
+              marginBottom: '1rem',
+              borderRadius: '6px',
+            }}
+          >
+            {productData?.image?.map((item, idx) => {
+              return (
+                <Carousel.Item key={idx}>
+                  <ProductImage
+                    className='d-block w-100'
+                    src={process.env.REACT_APP_IMAGE_URL + item?.fileName}
+                    alt=''
+                  />
+                </Carousel.Item>
+              );
+            })}
+          </Carousel>
+          <ProductName>{productData.name}</ProductName>
+          <ProductDescription>{productData.description}</ProductDescription>
+          <ProductPrice>
+            {Number(productData.price).toLocaleString('pt-BR', {
               style: 'currency',
               currency: 'BRL',
             })}
-          </span>
-        </FinishedButton>
-      </Footer>
-    </Container>
+          </ProductPrice>
+        </ProductInfoBox>
+        {productData.additional ? (
+          <>
+            <Divider>
+              Deseja algum adicional?
+              <span>Escolha até {productData?.additional?.length} opções.</span>
+            </Divider>
+            <AdditionalsList>
+              {productData.additional?.map((item, idx) => (
+                <AdditionalsListItem key={idx}>
+                  <AdditionalName>{item.name}</AdditionalName>
+                  <AdditionalEnd>
+                    <AdditionalPrice>
+                      {Number(item.price).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}
+                    </AdditionalPrice>
+                    <CounterBox>
+                      <MdRemove
+                        style={{ cursor: 'pointer' }}
+                        onClick={() =>
+                          setProductData((state) => ({
+                            ...state,
+                            additional: state?.additional?.map((product) =>
+                              item.id === product.id && item.quantity > 0
+                                ? { ...item, quantity: item?.quantity - 1 }
+                                : product
+                            ),
+                          }))
+                        }
+                      />
+                      {item.quantity}
+                      <MdAdd
+                        style={{ cursor: 'pointer' }}
+                        onClick={() =>
+                          setProductData((state) => ({
+                            ...state,
+                            additional: state?.additional?.map((product) =>
+                              item.id === product.id
+                                ? { ...item, quantity: item?.quantity + 1 }
+                                : product
+                            ),
+                          }))
+                        }
+                      />
+                    </CounterBox>
+                  </AdditionalEnd>
+                </AdditionalsListItem>
+              ))}
+            </AdditionalsList>
+          </>
+        ) : (
+          <span></span>
+        )}
+
+        <Divider>Alguma observação?</Divider>
+        <ObservationBox>
+          <ObservationTextArea
+            placeholder=' Ex: tirar cebola, tirar tomate...'
+            onChange={(e) => setObservation(e.target.value)}
+          ></ObservationTextArea>
+        </ObservationBox>
+        <Footer>
+          <FooterCounterBox>
+            <MdRemove
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                setProductQuantity(
+                  productQuantity - 1 < 1 ? 1 : productQuantity - 1
+                );
+              }}
+            />
+            {productQuantity}
+            <MdAdd
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                setProductQuantity(productQuantity + 1);
+              }}
+            />
+          </FooterCounterBox>
+          <FinishedButton onClick={() => handleComplete()}>
+            Concluir
+            <span>
+              {(
+                Number(total || 0) +
+                Number(productQuantity * (productData?.price ?? 0))
+              ).toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              })}
+            </span>
+          </FinishedButton>
+        </Footer>
+      </Container>
+    </>
   );
 };
