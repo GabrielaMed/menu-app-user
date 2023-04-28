@@ -8,4 +8,6 @@ export interface IProduct {
   price?: number;
   additional?: IAdditional[];
   image?: IImage[];
+  quantity?: number;
+  observation?: string;
 }

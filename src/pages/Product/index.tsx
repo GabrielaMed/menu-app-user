@@ -142,7 +142,35 @@ export const Product = () => {
         quantity: productQuantity,
       });
       if (response.data) {
-        setOrderData(response.data);
+        const { order } = response.data;
+
+        const products = order.Order_products.map((product: IProduct) => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product?.image?.[0]?.fileName,
+          observation: product.observation,
+          quantity: product.quantity,
+        }));
+
+        const additionals = order.Order_additional.map(
+          (additional: IAdditional) => ({
+            id: additional.id,
+            name: additional.name,
+            price: additional.price,
+          })
+        );
+
+        const { statusOrder, id } = order;
+
+        const orderData: IOrder = {
+          id,
+          products,
+          additionals,
+          statusOrder,
+        };
+
+        setOrderData(orderData);
       }
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -161,10 +189,6 @@ export const Product = () => {
   };
 
   const handleComplete = async () => {
-    const additionals = productData?.additional?.filter(
-      (item) => item.quantity > 0
-    );
-
     try {
       const response = await api.get(
         `order/visitor/${visitorUuid}/${companyId}`

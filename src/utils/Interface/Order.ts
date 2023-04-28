@@ -7,4 +7,5 @@ export interface IOrder {
   products?: IProduct[];
   additionals?: IAdditional[];
   statusOrder: OrderStatus;
+  productsQuantity?: number;
 }
