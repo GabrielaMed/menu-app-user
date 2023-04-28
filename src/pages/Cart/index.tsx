@@ -6,12 +6,13 @@ import { ToastMessage } from '../../components/Toast';
 import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import { AxiosError } from 'axios';
+import { IOrder } from '../../utils/Interface/Order';
 
 interface Props {
-  orderId?: string;
+  orderData?: string;
 }
 
-export const Cart = ({ orderId }: Props) => {
+export const Cart = ({ orderData }: Props) => {
   const navigate = useNavigate();
   const { companyId } = useParams();
   const [showToast, setShowToast] = useState(false);

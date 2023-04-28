@@ -20,6 +20,8 @@ import { api } from '../../services/api';
 import ReactLoading from 'react-loading';
 import { MdShoppingCart } from 'react-icons/md';
 import { v4 as uuidv4 } from 'uuid';
+import { IOrder } from '../../utils/Interface/Order';
+import { OrderStatus } from '../../utils/Enum/OrderStatus';
 
 export const Home = () => {
   const companyId = `${process.env.REACT_APP_COMPANY_ID}`;
@@ -31,6 +33,8 @@ export const Home = () => {
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
+  const [orderData, setOrderData] = useState<IOrder>();
+
   const navigate = useNavigate();
   let visitorUuid = localStorage.getItem('visitorUuid');
 
@@ -47,7 +51,6 @@ export const Home = () => {
           setProductsData(response.data);
         }
       } catch (err) {
-        console.log(err);
         if (err instanceof AxiosError) {
           setShowToast(true);
           setToastMessageType(IToastType.error);
@@ -92,9 +95,43 @@ export const Home = () => {
     updateData();
   }, [productsData]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(
+          `order/visitor/${visitorUuid}/${companyId}`
+        );
+
+        if (response.data) {
+          const orderIniciado = response.data.filter(
+            (item: IOrder) => item.statusOrder === OrderStatus.iniciado
+          )[0];
+
+          setOrderData({
+            id: orderIniciado.id,
+            products: orderIniciado.Order_products,
+            additionals: orderIniciado.Order_additional,
+            statusOrder: orderIniciado.statusOrder,
+            productsQuantity: orderIniciado._count.Order_products,
+          });
+        }
+      } catch (err) {
+        if (err instanceof AxiosError) {
+          setShowToast(true);
+          setToastMessageType(IToastType.error);
+          setToastMessage(`Error: ${err?.response?.data}`);
+        }
+      }
+    };
+
+    if (visitorUuid) {
+      fetchData();
+    }
+  }, [visitorUuid]);
+
   return (
     <Container>
-      <Header />
+      <Header orderData={orderData} />
       {loading && (
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <ReactLoading
