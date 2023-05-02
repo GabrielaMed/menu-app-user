@@ -13,7 +13,7 @@ import {
 } from './style';
 import { Header } from '../../components/Header';
 import { AxiosError } from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { IProduct } from '../../utils/Interface/Product';
 import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
@@ -22,6 +22,7 @@ import { MdShoppingCart } from 'react-icons/md';
 import { v4 as uuidv4 } from 'uuid';
 import { IOrder } from '../../utils/Interface/Order';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
+import { OrderContext } from '../../shared/OrderContext';
 
 export const Home = () => {
   const companyId = `${process.env.REACT_APP_COMPANY_ID}`;
@@ -33,7 +34,7 @@ export const Home = () => {
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
-  const [orderData, setOrderData] = useState<IOrder>();
+  const { setOrderData } = useContext(OrderContext);
 
   const navigate = useNavigate();
   let visitorUuid = localStorage.getItem('visitorUuid');
@@ -131,7 +132,7 @@ export const Home = () => {
 
   return (
     <Container>
-      <Header orderData={orderData} />
+      <Header />
       {loading && (
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <ReactLoading

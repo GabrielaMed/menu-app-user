@@ -2,19 +2,13 @@ import { MdLocationOn, MdShoppingCart } from 'react-icons/md';
 import { CartBox, Container, HoldLocationAndCart, LocationBox } from './style';
 import { IOrder } from '../../utils/Interface/Order';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useContext } from 'react';
+import { OrderContext } from '../../shared/OrderContext';
 
-interface Props {
-  orderData?: IOrder;
-}
-
-export const Header = ({ orderData }: Props) => {
+export const Header = () => {
+  const { orderData } = useContext(OrderContext);
   const navigate = useNavigate();
   const { companyId } = useParams();
-
-  const options = {
-    pathname: `/${companyId}/cart`,
-    state: { orderId: orderData?.id },
-  };
 
   return (
     <Container>
@@ -27,28 +21,16 @@ export const Header = ({ orderData }: Props) => {
         </LocationBox>
         {orderData?.productsQuantity === 0 ? (
           <CartBox>
-            <MdShoppingCart
-              onClick={() => navigate(options, { replace: true })}
-            />
+            <MdShoppingCart onClick={() => navigate(`/${companyId}/cart`)} />
           </CartBox>
         ) : (
-          <CartBox onClick={() => navigate(options, { replace: true })}>
+          <CartBox
+            onClick={() => {
+              navigate(`/${companyId}/cart`);
+            }}
+          >
+            <span>{orderData?.productsQuantity}</span>
             <MdShoppingCart />
-            <span
-              style={{
-                width: '1rem',
-                height: '1rem',
-                borderRadius: '50%',
-                background: 'red',
-                fontSize: '14px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                color: 'white',
-              }}
-            >
-              {orderData?.productsQuantity}
-            </span>
           </CartBox>
         )}
       </HoldLocationAndCart>

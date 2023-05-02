@@ -22,6 +22,22 @@ export const CartBox = styled.button`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  position: relative;
+
+  span {
+    position: absolute;
+    left: -4px;
+    top: -4px;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: #4b2995;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+  }
 `;
 
 export const LocationBox = styled.button`

@@ -1,18 +1,15 @@
 import { MdArrowBack } from 'react-icons/md';
 import { Container, Navbar } from './style';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState, useContext } from 'react';
 import { ToastMessage } from '../../components/Toast';
 import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import { AxiosError } from 'axios';
 import { IOrder } from '../../utils/Interface/Order';
+import { OrderContext } from '../../shared/OrderContext';
 
-interface Props {
-  orderData?: string;
-}
-
-export const Cart = ({ orderData }: Props) => {
+export const Cart = () => {
   const navigate = useNavigate();
   const { companyId } = useParams();
   const [showToast, setShowToast] = useState(false);
@@ -20,6 +17,7 @@ export const Cart = ({ orderData }: Props) => {
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
+  const { orderData, setOrderData } = useContext(OrderContext);
 
   return (
     <>
