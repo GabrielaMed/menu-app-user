@@ -1,5 +1,13 @@
 import { MdArrowBack } from 'react-icons/md';
-import { Container, Navbar } from './style';
+import {
+  Card,
+  Container,
+  Content,
+  GoBack,
+  Navbar,
+  Order,
+  OrderInfo,
+} from './style';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
 import { ToastMessage } from '../../components/Toast';
@@ -38,6 +46,36 @@ export const Cart = () => {
           </span>
           <span>Carrinho</span>
         </Navbar>
+        <Content>
+          <Card>
+            {orderData ? (
+              orderData?.products?.map((product, idx) => (
+                <Order key={idx}>
+                  {product?.image?.[0] ? (
+                    <img
+                      src={
+                        process.env.REACT_APP_IMAGE_URL +
+                        product?.image?.[0]?.fileName
+                      }
+                      alt=''
+                    />
+                  ) : (
+                    <span></span>
+                  )}
+                  <OrderInfo>
+                    <span>{product.name}</span>
+                  </OrderInfo>
+                </Order>
+              ))
+            ) : (
+              <GoBack>
+                <span onClick={() => navigate(`/${companyId}}`)}>
+                  Voltar para página inicial
+                </span>
+              </GoBack>
+            )}
+          </Card>
+        </Content>
       </Container>
     </>
   );
