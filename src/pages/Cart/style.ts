@@ -50,6 +50,8 @@ export const Card = styled.div`
   padding: 1rem;
   background-color: #f3f2f2;
   display: flex;
+  flex-direction: column;
+  gap: 1rem;
   border-radius: 6px 44px;
 `;
 
@@ -57,7 +59,7 @@ export const Order = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  border-bottom: #e6e5e5;
+  padding: 1rem;
 `;
 
 export const OrderInfo = styled.div`
@@ -65,6 +67,31 @@ export const OrderInfo = styled.div`
   height: fit-content;
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+`;
+
+export const OrderInfoButtonsBox = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+`;
+
+export const OrderInfoButtons = styled.button`
+  all: unset;
+  max-width: 6rem;
+  height: 2rem;
+  padding-inline: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #e6e5e5;
+  border-radius: 6px;
+`;
+
+export const OrderInfoObservation = styled.div`
+  width: 100%;
+  font-size: 1rem;
 `;
 
 export const ProductPrice = styled.p`

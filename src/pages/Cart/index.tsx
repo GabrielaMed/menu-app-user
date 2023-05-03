@@ -1,4 +1,10 @@
-import { MdArrowBack } from 'react-icons/md';
+import {
+  MdAdd,
+  MdArrowBack,
+  MdDelete,
+  MdDeleteOutline,
+  MdRemove,
+} from 'react-icons/md';
 import {
   Card,
   Container,
@@ -7,6 +13,10 @@ import {
   Navbar,
   Order,
   OrderInfo,
+  OrderInfoButtons,
+  OrderInfoButtonsBox,
+  OrderInfoObservation,
+  ProductPrice,
 } from './style';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
@@ -26,7 +36,7 @@ export const Cart = () => {
   );
   const [toastMessage, setToastMessage] = useState('');
   const { orderData, setOrderData } = useContext(OrderContext);
-
+  console.log(orderData);
   return (
     <>
       <ToastMessage
@@ -49,13 +59,13 @@ export const Cart = () => {
         <Content>
           <Card>
             {orderData ? (
-              orderData?.products?.map((product, idx) => (
+              orderData?.products?.map((order, idx) => (
                 <Order key={idx}>
-                  {product?.image?.[0] ? (
+                  {order?.product?.image?.[0] ? (
                     <img
                       src={
-                        process.env.REACT_APP_IMAGE_URL +
-                        product?.image?.[0]?.fileName
+                        process.env.REACT_APP_IMAGE_URL! +
+                        order.product.image[0]
                       }
                       alt=''
                     />
@@ -63,8 +73,27 @@ export const Cart = () => {
                     <span></span>
                   )}
                   <OrderInfo>
-                    <span>{product.name}</span>
+                    <span>{order.product.name}</span>
+                    {order.observation ? (
+                      <OrderInfoObservation>
+                        Observação: {order.observation}
+                      </OrderInfoObservation>
+                    ) : (
+                      <span></span>
+                    )}
+                    <OrderInfoButtonsBox>
+                      <OrderInfoButtons>
+                        <MdRemove color='#8047F8' />
+                        {order.quantity}
+                        <MdAdd color='#8047F8' />
+                      </OrderInfoButtons>
+                      <OrderInfoButtons>
+                        <MdDeleteOutline color='#8047F8' />
+                        Remover
+                      </OrderInfoButtons>
+                    </OrderInfoButtonsBox>
                   </OrderInfo>
+                  <ProductPrice>{order.product.price}</ProductPrice>
                 </Order>
               ))
             ) : (
