@@ -31,6 +31,7 @@ import { IAdditional } from '../../utils/Interface/Additional';
 import { IOrder } from '../../utils/Interface/Order';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
 import { ToastMessage } from '../../components/Toast';
+import { IOrderProduct } from '../../utils/Interface/OrderProduct';
 
 export const Product = () => {
   const [productData, setProductData] = useState<IProduct>({});
@@ -144,15 +145,6 @@ export const Product = () => {
       if (response.data) {
         const { order } = response.data;
 
-        const products = order.Order_products.map((product: IProduct) => ({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product?.image?.[0]?.fileName,
-          observation: product.observation,
-          quantity: product.quantity,
-        }));
-
         const additionals = order.Order_additional.map(
           (additional: IAdditional) => ({
             id: additional.id,
@@ -161,12 +153,23 @@ export const Product = () => {
           })
         );
 
+        const products = order.Order_products.map((order: IOrderProduct) => ({
+          id: order.id,
+          product: {
+            name: order.product.name,
+            price: order.product.price,
+            image: order?.product.image?.[0]?.fileName,
+          },
+          additionals,
+          observation: order.observation,
+          quantity: order.quantity,
+        }));
+
         const { statusOrder, id } = order;
 
         const orderData: IOrder = {
           id,
           products,
-          additionals,
           statusOrder,
         };
 
