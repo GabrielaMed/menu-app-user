@@ -7,7 +7,7 @@ export interface IProduct {
   description?: string;
   price?: number;
   additional?: IAdditional[];
-  image?: IImage[];
+  Image?: IImage[];
   quantity?: number;
   observation?: string;
 }

@@ -76,7 +76,7 @@ export const Home = () => {
         try {
           const responseImages = await api.get(`product/${productId}/image`);
           if (responseImages.data) {
-            product.image = responseImages.data;
+            product.Image = responseImages.data;
           }
         } catch (err) {
           console.log(err);
@@ -150,14 +150,14 @@ export const Home = () => {
             {productsWImageData.length > 0 &&
               productsWImageData?.map((product) => (
                 <Card key={product.id}>
-                  {product?.image ? (
+                  {product?.Image ? (
                     <ImageBox>
                       <img
                         className='d-block w-100'
                         style={{ objectFit: 'contain', height: '15rem' }}
                         src={
                           process.env.REACT_APP_IMAGE_URL +
-                          product?.image[0]?.fileName
+                          product?.Image[0]?.fileName
                         }
                         alt=''
                       />
