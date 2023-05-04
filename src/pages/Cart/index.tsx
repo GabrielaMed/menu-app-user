@@ -7,16 +7,21 @@ import {
 } from 'react-icons/md';
 import {
   Card,
+  ConfirmButton,
   Container,
   Content,
+  Footer,
   GoBack,
+  ImageBox,
   Navbar,
   Order,
   OrderInfo,
+  OrderInfoAdditionals,
   OrderInfoButtons,
   OrderInfoButtonsBox,
   OrderInfoObservation,
-  ProductPrice,
+  OrderTotalPrice,
+  ProductInfo,
 } from './style';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
@@ -36,7 +41,14 @@ export const Cart = () => {
   );
   const [toastMessage, setToastMessage] = useState('');
   const { orderData, setOrderData } = useContext(OrderContext);
-  console.log(orderData);
+  // const total = orderData.additional?.reduce(
+  //   (acc, product) =>
+  //     acc + (product?.price ? product.price * product.quantity : 0),
+  //   0
+  // );
+
+  console.log('>>>>>>', orderData);
+
   return (
     <>
       <ToastMessage
@@ -61,26 +73,37 @@ export const Cart = () => {
             {orderData ? (
               orderData?.products?.map((order, idx) => (
                 <Order key={idx}>
-                  {order?.product?.image?.[0] ? (
-                    <img
-                      src={
-                        process.env.REACT_APP_IMAGE_URL! +
-                        order.product.image[0]
-                      }
-                      alt=''
-                    />
-                  ) : (
-                    <span></span>
-                  )}
+                  {order?.product?.Image ? (
+                    <ImageBox>
+                      <img
+                        src={
+                          process.env.REACT_APP_IMAGE_URL! +
+                          order.product.Image[0].fileName
+                        }
+                        alt=''
+                      />
+                    </ImageBox>
+                  ) : null}
                   <OrderInfo>
-                    <span>{order.product.name}</span>
+                    <ProductInfo>
+                      {order.product.name}
+                      <strong>
+                        {Number(
+                          order.quantity * (order?.product?.price ?? 0)
+                        ).toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        })}
+                      </strong>
+                    </ProductInfo>
+                    {order.additionals ? (
+                      <OrderInfoAdditionals></OrderInfoAdditionals>
+                    ) : null}
                     {order.observation ? (
                       <OrderInfoObservation>
                         Observação: {order.observation}
                       </OrderInfoObservation>
-                    ) : (
-                      <span></span>
-                    )}
+                    ) : null}
                     <OrderInfoButtonsBox>
                       <OrderInfoButtons>
                         <MdRemove color='#8047F8' />
@@ -93,7 +116,6 @@ export const Cart = () => {
                       </OrderInfoButtons>
                     </OrderInfoButtonsBox>
                   </OrderInfo>
-                  <ProductPrice>{order.product.price}</ProductPrice>
                 </Order>
               ))
             ) : (
@@ -104,6 +126,14 @@ export const Cart = () => {
               </GoBack>
             )}
           </Card>
+
+          <Footer>
+            <OrderTotalPrice>
+              Total:
+              <span>{}</span>
+            </OrderTotalPrice>
+            <ConfirmButton>Confirmar pedido</ConfirmButton>
+          </Footer>
         </Content>
       </Container>
     </>

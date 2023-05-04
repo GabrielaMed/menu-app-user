@@ -58,12 +58,40 @@ export const Card = styled.div`
 export const Order = styled.div`
   width: 100%;
   display: flex;
-  flex-direction: column;
   padding: 1rem;
+  box-sizing: border-box;
+  border-bottom: 1px solid #e6e5e5;
+  gap: 1rem;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  @media (max-width: 390px) {
+    flex-wrap: wrap;
+  }
+`;
+
+export const ImageBox = styled.div`
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  max-height: 3.5rem;
+  border-radius: 5px;
+  overflow: hidden;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+  }
 `;
 
 export const OrderInfo = styled.div`
-  width: 100%;
+  width: 12rem;
   height: fit-content;
   display: flex;
   flex-direction: column;
@@ -82,20 +110,28 @@ export const OrderInfoButtons = styled.button`
   height: 2rem;
   padding-inline: 1rem;
   display: flex;
-  justify-content: center;
+
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
   background-color: #e6e5e5;
   border-radius: 6px;
 `;
 
-export const OrderInfoObservation = styled.div`
+export const OrderInfoAdditionals = styled.div`
   width: 100%;
-  font-size: 1rem;
+  font-size: 0.8rem;
 `;
 
-export const ProductPrice = styled.p`
-  font-weight: bold;
+export const OrderInfoObservation = styled.div`
+  width: 100%;
+  font-size: 0.9rem;
+  text-align: justify;
+`;
+
+export const ProductInfo = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 `;
 
 export const GoBack = styled.div`
@@ -109,4 +145,38 @@ export const GoBack = styled.div`
     text-decoration: underline;
     cursor: pointer;
   }
+`;
+
+export const Footer = styled.footer`
+  background-color: #f3f2f2;
+  height: 7rem;
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem;
+`;
+
+export const OrderTotalPrice = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+`;
+
+export const ConfirmButton = styled.button`
+  all: unset;
+  background-color: #4b2995;
+  min-width: 10rem;
+  gap: 1rem;
+  padding: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  font-size: 18px;
+  color: white;
 `;
