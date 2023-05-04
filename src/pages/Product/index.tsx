@@ -158,7 +158,7 @@ export const Product = () => {
           product: {
             name: order.product.name,
             price: order.product.price,
-            image: order?.product.image?.[0]?.fileName,
+            image: order?.product.Image?.[0]?.fileName,
           },
           additionals,
           observation: order.observation,
@@ -182,13 +182,41 @@ export const Product = () => {
         setToastMessage(`Error: ${err?.response?.data}`);
       }
     }
+  };
 
-    const options = {
-      pathname: `/${companyId}/cart`,
-      state: { orderId: orderData?.id },
+  const handleRelateProductOrderAndAdditional = async () => {
+    const filterAdditionals = async (index: number) => {
+      console.log('HERE', orderData);
+      if (!orderData?.products?.[index]) return;
+
+      const additionalId = productData.additional?.filter(
+        (item) => item.quantity > 0
+      )[index];
+      const productOrderId = orderData?.products?.[index]?.id;
+      console.log('ADC', additionalId, ' - PRODORD ', productOrderId);
+      // try {
+      //   const response = await api.post(
+      //     `order/${additionalId}/${productOrderId}`
+      //   );
+
+      //   if (response.data) {
+      //     const orderIniciado = response.data.filter(
+      //       (item: IOrder) => item.statusOrder === OrderStatus.iniciado
+      //     )[0];
+      //     setOrderData(orderIniciado);
+      //   }
+      // } catch (err) {
+      //   if (err instanceof AxiosError) {
+      //     setShowToast(true);
+      //     setToastMessageType(IToastType.error);
+      //     setToastMessage(`Error: ${err?.response?.data}`);
+      //   }
+      // }
+
+      await filterAdditionals(index + 1);
     };
-
-    navigate(options, { replace: true });
+    await filterAdditionals(1);
+    // navigate(`/${companyId}/cart`);
   };
 
   const handleComplete = async () => {
@@ -218,6 +246,7 @@ export const Product = () => {
     const relates = async () => {
       if (orderExists?.id) {
         await handleRelateProductAndOrder(orderExists?.id);
+        await handleRelateProductOrderAndAdditional();
       }
     };
 
@@ -251,7 +280,7 @@ export const Product = () => {
               borderRadius: '6px',
             }}
           >
-            {productData?.image?.map((item, idx) => {
+            {productData?.Image?.map((item, idx) => {
               return (
                 <Carousel.Item key={idx}>
                   <ProductImage
@@ -323,9 +352,7 @@ export const Product = () => {
               ))}
             </AdditionalsList>
           </>
-        ) : (
-          <span></span>
-        )}
+        ) : null}
 
         <Divider>Alguma observação?</Divider>
         <ObservationBox>
