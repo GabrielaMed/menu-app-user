@@ -137,12 +137,32 @@ export const Product = () => {
 
   const handleRelateProductAndOrder = async (orderId: string) => {
     try {
+      const additionals = productData?.additional
+        ?.filter((additional) => additional.quantity > 0)
+        .map((additional) => {
+          return {
+            additionalId: additional.id,
+            quantity: additional.quantity,
+          };
+        });
+      console.log('2', `order/${orderId}`);
+      console.log({
+        productId,
+        observation,
+        additionals,
+        quantity: productQuantity,
+      });
+
       const response = await api.post(`order/${orderId}`, {
         productId,
         observation,
+        additionals,
         quantity: productQuantity,
       });
+
+      console.log('REPOSNE');
       if (response.data) {
+        console.log('dentro dso if');
         const { order } = response.data;
 
         const additionals = order.Order_additional.map(
@@ -173,50 +193,18 @@ export const Product = () => {
           statusOrder,
         };
 
+        console.log(`/${companyId}/cart`);
         setOrderData(orderData);
+        navigate(`/${companyId}/cart`);
       }
     } catch (err) {
+      console.log('ERRO', err);
       if (err instanceof AxiosError) {
         setShowToast(true);
         setToastMessageType(IToastType.error);
         setToastMessage(`Error: ${err?.response?.data}`);
       }
     }
-  };
-
-  const handleRelateProductOrderAndAdditional = async () => {
-    const filterAdditionals = async (index: number) => {
-      console.log('HERE', orderData);
-      if (!orderData?.products?.[index]) return;
-
-      const additionalId = productData.additional?.filter(
-        (item) => item.quantity > 0
-      )[index];
-      const productOrderId = orderData?.products?.[index]?.id;
-      console.log('ADC', additionalId, ' - PRODORD ', productOrderId);
-      // try {
-      //   const response = await api.post(
-      //     `order/${additionalId}/${productOrderId}`
-      //   );
-
-      //   if (response.data) {
-      //     const orderIniciado = response.data.filter(
-      //       (item: IOrder) => item.statusOrder === OrderStatus.iniciado
-      //     )[0];
-      //     setOrderData(orderIniciado);
-      //   }
-      // } catch (err) {
-      //   if (err instanceof AxiosError) {
-      //     setShowToast(true);
-      //     setToastMessageType(IToastType.error);
-      //     setToastMessage(`Error: ${err?.response?.data}`);
-      //   }
-      // }
-
-      await filterAdditionals(index + 1);
-    };
-    await filterAdditionals(1);
-    // navigate(`/${companyId}/cart`);
   };
 
   const handleComplete = async () => {
@@ -246,7 +234,6 @@ export const Product = () => {
     const relates = async () => {
       if (orderExists?.id) {
         await handleRelateProductAndOrder(orderExists?.id);
-        await handleRelateProductOrderAndAdditional();
       }
     };
 
