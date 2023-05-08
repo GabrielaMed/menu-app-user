@@ -22,7 +22,7 @@ import {
 } from './style';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../services/api';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { IToastType } from '../../utils/Interface/Toast';
 import { IProduct } from '../../utils/Interface/Product';
 import { AxiosError } from 'axios';
@@ -32,10 +32,11 @@ import { IOrder } from '../../utils/Interface/Order';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
 import { ToastMessage } from '../../components/Toast';
 import { IOrderProduct } from '../../utils/Interface/OrderProduct';
+import { OrderContext } from '../../shared/OrderContext';
 
 export const Product = () => {
   const [productData, setProductData] = useState<IProduct>({});
-  const [orderData, setOrderData] = useState<IOrder>();
+  const { orderData, setOrderData } = useContext(OrderContext);
   const [orderExists, setOrderExists] = useState<IOrder>();
   const [showToast, setShowToast] = useState(false);
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
@@ -44,9 +45,9 @@ export const Product = () => {
   const [toastMessage, setToastMessage] = useState('');
   const { productId, companyId } = useParams();
   const [productQuantity, setProductQuantity] = useState(1);
-  const total = productData.additional?.reduce(
-    (acc, product) =>
-      acc + (product?.price ? product.price * product.quantity : 0),
+  const total = productData.additionals?.reduce(
+    (acc, additional) =>
+      acc + (additional?.price ? additional.price * additional.quantity : 0),
     0
   );
   const navigate = useNavigate();
@@ -137,7 +138,7 @@ export const Product = () => {
 
   const handleRelateProductAndOrder = async (orderId: string) => {
     try {
-      const additionals = productData?.additional
+      const additionals = productData?.additionals
         ?.filter((additional) => additional.quantity > 0)
         .map((additional) => {
           return {
@@ -145,13 +146,6 @@ export const Product = () => {
             quantity: additional.quantity,
           };
         });
-      console.log('2', `order/${orderId}`);
-      console.log({
-        productId,
-        observation,
-        additionals,
-        quantity: productQuantity,
-      });
 
       const response = await api.post(`order/${orderId}`, {
         productId,
@@ -160,27 +154,19 @@ export const Product = () => {
         quantity: productQuantity,
       });
 
-      console.log('REPOSNE');
       if (response.data) {
-        console.log('dentro dso if');
-        const { order } = response.data;
+        const { order } = response.data.orderProduct;
 
-        const additionals = order.Order_additional.map(
-          (additional: IAdditional) => ({
-            id: additional.id,
-            name: additional.name,
-            price: additional.price,
-          })
-        );
-
-        const products = order.Order_products.map((order: IOrderProduct) => ({
+        const products = order.Order_products.map((order: any) => ({
           id: order.id,
           product: {
             name: order.product.name,
             price: order.product.price,
             image: order?.product.Image?.[0]?.fileName,
           },
-          additionals,
+          additionals: {
+            ...order.Order_additional,
+          },
           observation: order.observation,
           quantity: order.quantity,
         }));
@@ -193,7 +179,6 @@ export const Product = () => {
           statusOrder,
         };
 
-        console.log(`/${companyId}/cart`);
         setOrderData(orderData);
         navigate(`/${companyId}/cart`);
       }
@@ -288,14 +273,16 @@ export const Product = () => {
             })}
           </ProductPrice>
         </ProductInfoBox>
-        {productData.additional ? (
+        {productData.additionals ? (
           <>
             <Divider>
               Deseja algum adicional?
-              <span>Escolha até {productData?.additional?.length} opções.</span>
+              <span>
+                Escolha até {productData?.additionals?.length} opções.
+              </span>
             </Divider>
             <AdditionalsList>
-              {productData.additional?.map((item, idx) => (
+              {productData.additionals?.map((item, idx) => (
                 <AdditionalsListItem key={idx}>
                   <AdditionalName>{item.name}</AdditionalName>
                   <AdditionalEnd>
@@ -311,7 +298,7 @@ export const Product = () => {
                         onClick={() =>
                           setProductData((state) => ({
                             ...state,
-                            additional: state?.additional?.map((product) =>
+                            additional: state?.additionals?.map((product) =>
                               item.id === product.id && item.quantity > 0
                                 ? { ...item, quantity: item?.quantity - 1 }
                                 : product
@@ -325,7 +312,7 @@ export const Product = () => {
                         onClick={() =>
                           setProductData((state) => ({
                             ...state,
-                            additional: state?.additional?.map((product) =>
+                            additional: state?.additionals?.map((product) =>
                               item.id === product.id
                                 ? { ...item, quantity: item?.quantity + 1 }
                                 : product
