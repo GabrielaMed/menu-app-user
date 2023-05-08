@@ -110,8 +110,7 @@ export const Home = () => {
 
           setOrderData({
             id: orderIniciado.id,
-            products: orderIniciado.Order_products,
-            additionals: orderIniciado.Order_additional,
+            products: [...orderIniciado.Order_products],
             statusOrder: orderIniciado.statusOrder,
             productsQuantity: orderIniciado._count.Order_products,
           });
