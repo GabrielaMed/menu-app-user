@@ -41,11 +41,19 @@ export const Cart = () => {
   );
   const [toastMessage, setToastMessage] = useState('');
   const { orderData, setOrderData } = useContext(OrderContext);
-  // const total = orderData.additional?.reduce(
-  //   (acc, product) =>
-  //     acc + (product?.price ? product.price * product.quantity : 0),
-  //   0
-  // );
+  const total = orderData?.products?.reduce((acc, orderProducts) => {
+    const productTotal =
+      (orderProducts?.product?.price ?? 0) * (orderProducts?.quantity ?? 0);
+
+    const additionalTotal = orderProducts?.product?.additionals?.reduce(
+      (acc, additional) =>
+        acc + (additional?.price ? additional.price * additional.quantity : 0),
+      0
+    );
+
+    console.log(additionalTotal, 'jhflkisdhfldsjfo');
+    return acc + productTotal + (additionalTotal ?? 0);
+  }, 0);
 
   console.log('>>>>>>', orderData);
 
@@ -96,9 +104,26 @@ export const Cart = () => {
                         })}
                       </strong>
                     </ProductInfo>
-                    {order.additionals ? (
-                      <OrderInfoAdditionals></OrderInfoAdditionals>
-                    ) : null}
+                    {order.additionals
+                      ? order.additionals.map((additional, idx) => (
+                          <OrderInfoAdditionals key={idx}>
+                            <strong>Adicionais: </strong>
+                            <span>
+                              <span>
+                                {additional.quantity} - {additional.name}
+                              </span>
+                              <span>
+                                {Number(
+                                  additional.quantity * (additional.price ?? 0)
+                                ).toLocaleString('pt-BR', {
+                                  style: 'currency',
+                                  currency: 'BRL',
+                                })}
+                              </span>
+                            </span>
+                          </OrderInfoAdditionals>
+                        ))
+                      : null}
                     {order.observation ? (
                       <OrderInfoObservation>
                         Observação: {order.observation}
@@ -130,7 +155,12 @@ export const Cart = () => {
           <Footer>
             <OrderTotalPrice>
               Total:
-              <span>{}</span>
+              <span>
+                {Number(total).toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                })}
+              </span>
             </OrderTotalPrice>
             <ConfirmButton>Confirmar pedido</ConfirmButton>
           </Footer>

@@ -4,7 +4,7 @@ export const Container = styled.div`
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  padding-bottom: 5rem;
+  padding-bottom: 8rem;
 `;
 
 export const Navbar = styled.div`
@@ -119,7 +119,15 @@ export const OrderInfoButtons = styled.button`
 
 export const OrderInfoAdditionals = styled.div`
   width: 100%;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0.5rem;
+  span {
+    display: flex;
+    justify-content: space-between;
+  }
+  border-bottom: 1px solid #c4c4c4;
 `;
 
 export const OrderInfoObservation = styled.div`
