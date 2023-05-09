@@ -31,6 +31,8 @@ import { api } from '../../services/api';
 import { AxiosError } from 'axios';
 import { IOrder } from '../../utils/Interface/Order';
 import { OrderContext } from '../../shared/OrderContext';
+import { OrderStatus } from '../../utils/Enum/OrderStatus';
+import { IOrderProduct } from '../../utils/Interface/OrderProduct';
 
 export const Cart = () => {
   const navigate = useNavigate();
@@ -45,17 +47,108 @@ export const Cart = () => {
     const productTotal =
       (orderProducts?.product?.price ?? 0) * (orderProducts?.quantity ?? 0);
 
-    const additionalTotal = orderProducts?.product?.additionals?.reduce(
+    const additionalTotal = orderProducts?.additionals?.reduce(
       (acc, additional) =>
         acc + (additional?.price ? additional.price * additional.quantity : 0),
       0
     );
 
-    console.log(additionalTotal, 'jhflkisdhfldsjfo');
     return acc + productTotal + (additionalTotal ?? 0);
   }, 0);
 
   console.log('>>>>>>', orderData);
+
+  const handleRemoveOneProductQuantity = (productId: string | undefined) => {
+    if (!productId) return;
+    const updatedProducts = orderData?.products?.map((product) => {
+      if (product.product.id === productId && product.quantity > 0) {
+        return {
+          ...product,
+          quantity: product.quantity - 1,
+        };
+      } else {
+        return product;
+      }
+    });
+
+    setOrderData({
+      ...orderData,
+      products: updatedProducts,
+    });
+  };
+
+  const handleAddOneProductQuantity = (productId: string | undefined) => {
+    if (!productId) return;
+    const updatedProducts = orderData?.products?.map((product) => {
+      if (product.product.id === productId) {
+        return {
+          ...product,
+          quantity: product.quantity + 1,
+        };
+      } else {
+        return product;
+      }
+    });
+
+    setOrderData({
+      ...orderData,
+      products: updatedProducts,
+    });
+  };
+
+  const handleRemoveAllProductQuantity = (productId: string | undefined) => {
+    if (!productId) return;
+    setOrderData((prevOrderData: IOrder) => ({
+      ...prevOrderData,
+      products: prevOrderData?.products?.map((item) => {
+        if (item.product.id === productId) {
+          return {
+            ...item,
+            quantity: 0,
+          };
+        }
+        return item;
+      }),
+      productsQuantity:
+        prevOrderData?.productsQuantity !== undefined &&
+        prevOrderData?.productsQuantity > 0
+          ? prevOrderData?.productsQuantity - 1
+          : 0,
+    }));
+  };
+
+  const handleConfirmOrder = async () => {
+    const products = orderData?.products?.map((item: IOrderProduct) => {
+      return {
+        productId: item.product.id,
+        quantity: item.quantity,
+      };
+    });
+
+    try {
+      const response = await api.put(`order/${orderData?.id}`, {
+        newStatusOrder: OrderStatus.enviado,
+        products,
+      });
+
+      if (response.status === 200) {
+        setShowToast(true);
+        setToastMessageType(IToastType.success);
+        setToastMessage(`Pedido enviado com sucesso!`);
+
+        setTimeout(() => {
+          navigate(`/${companyId}`);
+        }, 5000);
+      }
+    } catch (err) {
+      console.log('ERRO', err);
+      if (err instanceof AxiosError) {
+        setShowToast(true);
+        setToastMessageType(IToastType.error);
+        setToastMessage(`Error: ${err?.response?.data}`);
+      }
+    }
+  };
 
   return (
     <>
@@ -77,92 +170,117 @@ export const Cart = () => {
           <span>Carrinho</span>
         </Navbar>
         <Content>
-          <Card>
-            {orderData ? (
-              orderData?.products?.map((order, idx) => (
-                <Order key={idx}>
-                  {order?.product?.Image ? (
-                    <ImageBox>
-                      <img
-                        src={
-                          process.env.REACT_APP_IMAGE_URL! +
-                          order.product.Image[0].fileName
-                        }
-                        alt=''
-                      />
-                    </ImageBox>
-                  ) : null}
-                  <OrderInfo>
-                    <ProductInfo>
-                      {order.product.name}
-                      <strong>
-                        {Number(
-                          order.quantity * (order?.product?.price ?? 0)
-                        ).toLocaleString('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL',
-                        })}
-                      </strong>
-                    </ProductInfo>
-                    {order.additionals
-                      ? order.additionals.map((additional, idx) => (
-                          <OrderInfoAdditionals key={idx}>
-                            <strong>Adicionais: </strong>
-                            <span>
-                              <span>
-                                {additional.quantity} - {additional.name}
-                              </span>
-                              <span>
-                                {Number(
-                                  additional.quantity * (additional.price ?? 0)
-                                ).toLocaleString('pt-BR', {
-                                  style: 'currency',
-                                  currency: 'BRL',
-                                })}
-                              </span>
-                            </span>
-                          </OrderInfoAdditionals>
-                        ))
-                      : null}
-                    {order.observation ? (
-                      <OrderInfoObservation>
-                        Observação: {order.observation}
-                      </OrderInfoObservation>
-                    ) : null}
-                    <OrderInfoButtonsBox>
-                      <OrderInfoButtons>
-                        <MdRemove color='#8047F8' />
-                        {order.quantity}
-                        <MdAdd color='#8047F8' />
-                      </OrderInfoButtons>
-                      <OrderInfoButtons>
-                        <MdDeleteOutline color='#8047F8' />
-                        Remover
-                      </OrderInfoButtons>
-                    </OrderInfoButtonsBox>
-                  </OrderInfo>
-                </Order>
-              ))
-            ) : (
-              <GoBack>
-                <span onClick={() => navigate(`/${companyId}}`)}>
-                  Voltar para página inicial
-                </span>
-              </GoBack>
-            )}
-          </Card>
+          {orderData
+            ? orderData?.products
+                ?.filter((order) => order.quantity > 0)
+                .map((order, idx) => (
+                  <Card key={idx}>
+                    <Order>
+                      {order?.product?.Image ? (
+                        <ImageBox>
+                          <img
+                            src={
+                              process.env.REACT_APP_IMAGE_URL! +
+                              order.product.Image[0].fileName
+                            }
+                            alt=''
+                          />
+                        </ImageBox>
+                      ) : null}
+                      <OrderInfo>
+                        <ProductInfo>
+                          {order.product.name}
+                          <strong>
+                            {Number(
+                              order.quantity * (order?.product?.price ?? 0)
+                            ).toLocaleString('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL',
+                            })}
+                          </strong>
+                        </ProductInfo>
+                        {order.additionals
+                          ? order.additionals.map((additional, idx) => (
+                              <OrderInfoAdditionals key={idx}>
+                                <strong>Adicionais: </strong>
+                                <span>
+                                  <span>
+                                    {additional.quantity} - {additional.name}
+                                  </span>
+                                  <span>
+                                    {Number(
+                                      additional.quantity *
+                                        (additional.price ?? 0)
+                                    ).toLocaleString('pt-BR', {
+                                      style: 'currency',
+                                      currency: 'BRL',
+                                    })}
+                                  </span>
+                                </span>
+                              </OrderInfoAdditionals>
+                            ))
+                          : null}
+                        {order.observation ? (
+                          <OrderInfoObservation>
+                            Observação: {order.observation}
+                          </OrderInfoObservation>
+                        ) : null}
+                        <OrderInfoButtonsBox>
+                          <OrderInfoButtons>
+                            <MdRemove
+                              color='#8047F8'
+                              onClick={() =>
+                                handleRemoveOneProductQuantity(
+                                  order?.product?.id
+                                )
+                              }
+                            />
+                            {order.quantity}
+                            <MdAdd
+                              color='#8047F8'
+                              onClick={() =>
+                                handleAddOneProductQuantity(order?.product?.id)
+                              }
+                            />
+                          </OrderInfoButtons>
+                          <OrderInfoButtons>
+                            <MdDeleteOutline
+                              color='#8047F8'
+                              onClick={() =>
+                                handleRemoveAllProductQuantity(
+                                  order?.product.id
+                                )
+                              }
+                            />
+                            Remover
+                          </OrderInfoButtons>
+                        </OrderInfoButtonsBox>
+                      </OrderInfo>
+                    </Order>
+                  </Card>
+                ))
+            : // <GoBack>
+              //   <span onClick={() => navigate(`/${companyId}}`)}>
+              //     Voltar para página inicial
+              //   </span>
+              // </GoBack>
+              null}
 
           <Footer>
             <OrderTotalPrice>
-              Total:
-              <span>
-                {Number(total).toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL',
-                })}
-              </span>
+              <strong>Total:</strong>
+              <strong>
+                <span>
+                  {Number(total).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  })}
+                </span>
+              </strong>
             </OrderTotalPrice>
-            <ConfirmButton>Confirmar pedido</ConfirmButton>
+            <ConfirmButton onClick={() => handleConfirmOrder()}>
+              Confirmar pedido
+            </ConfirmButton>
           </Footer>
         </Content>
       </Container>
