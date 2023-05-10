@@ -19,17 +19,17 @@ export const Header = () => {
           <MdLocationOn />
           Campo Grande, MS
         </LocationBox>
-        {orderData?.productsQuantity === 0 ? (
-          <CartBox>
-            <MdShoppingCart onClick={() => navigate(`/${companyId}/cart`)} />
-          </CartBox>
-        ) : (
+        {orderData?.productsQuantity ?? 0 > 0 ? (
           <CartBox
             onClick={() => {
               navigate(`/${companyId}/cart`);
             }}
           >
             <span>{orderData?.productsQuantity}</span>
+            <MdShoppingCart />
+          </CartBox>
+        ) : (
+          <CartBox onClick={() => navigate(`/${companyId}/cart`)}>
             <MdShoppingCart />
           </CartBox>
         )}
