@@ -56,8 +56,6 @@ export const Cart = () => {
     return acc + productTotal + (additionalTotal ?? 0);
   }, 0);
 
-  console.log('>>>>>>', orderData);
-
   const handleRemoveOneProductQuantity = (productId: string | undefined) => {
     if (!productId) return;
     const updatedProducts = orderData?.products?.map((product) => {
@@ -120,15 +118,28 @@ export const Cart = () => {
   const handleConfirmOrder = async () => {
     const products = orderData?.products?.map((item: IOrderProduct) => {
       return {
-        productId: item.product.id,
+        orderProductId: item.id,
         quantity: item.quantity,
       };
     });
 
+    const cancelOrder = products?.filter((item: any) => item.quantity);
+
+    let newStatusOrder;
+    if ((cancelOrder?.length ?? 0) > 0) {
+      newStatusOrder = OrderStatus.enviado;
+    } else {
+      newStatusOrder = OrderStatus.canceladoCliente;
+    }
+
+    const productsToUpdate = products?.filter((item: any) => item.quantity > 0);
+
+    const productsToDelete = products?.filter((item: any) => item.quantity < 1);
+
     try {
       const response = await api.put(`order/${orderData?.id}`, {
         newStatusOrder: OrderStatus.enviado,
-        products,
+        productsToUpdate,
       });
 
       if (response.status === 200) {
@@ -138,6 +149,33 @@ export const Cart = () => {
 
         setTimeout(() => {
           navigate(`/${companyId}`);
+        }, 5000);
+      }
+    } catch (err) {
+      console.log('ERRO', err);
+      if (err instanceof AxiosError) {
+        setShowToast(true);
+        setToastMessageType(IToastType.error);
+        setToastMessage(`Error: ${err?.response?.data}`);
+      }
+    }
+
+    try {
+      const response = await api.delete(`order/${orderData?.id}`, {
+        data: {
+          newStatusOrder: OrderStatus.enviado,
+          productsToDelete,
+        },
+      });
+
+      if (response.status === 204) {
+        setShowToast(true);
+        setToastMessageType(IToastType.warning);
+        setToastMessage(`Produto deletado com sucesso!`);
+
+        setTimeout(() => {
+          navigate(`/${companyId}`);
+          window.location.reload();
         }, 5000);
       }
     } catch (err) {
@@ -243,15 +281,12 @@ export const Cart = () => {
                               }
                             />
                           </OrderInfoButtons>
-                          <OrderInfoButtons>
-                            <MdDeleteOutline
-                              color='#8047F8'
-                              onClick={() =>
-                                handleRemoveAllProductQuantity(
-                                  order?.product.id
-                                )
-                              }
-                            />
+                          <OrderInfoButtons
+                            onClick={() =>
+                              handleRemoveAllProductQuantity(order?.product.id)
+                            }
+                          >
+                            <MdDeleteOutline color='#8047F8' />
                             Remover
                           </OrderInfoButtons>
                         </OrderInfoButtonsBox>
