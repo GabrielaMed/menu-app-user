@@ -30,7 +30,7 @@ import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import { AxiosError } from 'axios';
 import { IOrder } from '../../utils/Interface/Order';
-import { OrderContext } from '../../shared/OrderContext';
+import { GlobalContext } from '../../shared/GlobalContext';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
 import { IOrderProduct } from '../../utils/Interface/OrderProduct';
 
@@ -42,7 +42,7 @@ export const Cart = () => {
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
-  const { orderData, setOrderData } = useContext(OrderContext);
+  const { orderData, setOrderData } = useContext(GlobalContext);
   const total = orderData?.products?.reduce((acc, orderProducts) => {
     const productTotal =
       (orderProducts?.product?.price ?? 0) * (orderProducts?.quantity ?? 0);
@@ -113,43 +113,31 @@ export const Cart = () => {
           ? prevOrderData?.productsQuantity - 1
           : 0,
     }));
+
+    handleDeleteProduct(productId);
   };
 
-  const handleConfirmOrder = async () => {
-    const products = orderData?.products?.map((item: IOrderProduct) => {
-      return {
-        orderProductId: item.id,
-        quantity: item.quantity,
-      };
-    });
+  const handleDeleteProduct = async (productId: string | undefined) => {
+    if (!productId) return;
+    const { products } = orderData || {};
 
-    const cancelOrder = products?.filter((item: any) => item.quantity);
-
-    let newStatusOrder;
-    if ((cancelOrder?.length ?? 0) > 0) {
-      newStatusOrder = OrderStatus.enviado;
-    } else {
-      newStatusOrder = OrderStatus.canceladoCliente;
-    }
-
-    const productsToUpdate = products?.filter((item: any) => item.quantity > 0);
-
-    const productsToDelete = products?.filter((item: any) => item.quantity < 1);
+    const orderProductId = products?.find(
+      (item: any) => item.product.id === productId
+    )?.id;
 
     try {
-      const response = await api.put(`order/${orderData?.id}`, {
-        newStatusOrder: OrderStatus.enviado,
-        productsToUpdate,
+      const response = await api.delete(`order/${orderData?.id}`, {
+        data: {
+          orderProductId,
+        },
       });
 
-      if (response.status === 200) {
-        setShowToast(true);
-        setToastMessageType(IToastType.success);
-        setToastMessage(`Pedido enviado com sucesso!`);
+      console.log('RESPO', response);
 
-        setTimeout(() => {
-          navigate(`/${companyId}`);
-        }, 5000);
+      if (response.status === 204) {
+        setShowToast(true);
+        setToastMessageType(IToastType.warning);
+        setToastMessage(`Produto excluido!`);
       }
     } catch (err) {
       console.log('ERRO', err);
@@ -159,23 +147,45 @@ export const Cart = () => {
         setToastMessage(`Error: ${err?.response?.data}`);
       }
     }
+  };
+
+  const handleConfirmOrder = async () => {
+    const { products } = orderData || {};
+
+    const updatedProducts = products
+      ?.filter((item: any) => item.quantity > 0)
+      .map((item: IOrderProduct) => ({
+        orderProductId: item.id,
+        quantity: item.quantity,
+      }));
+
+    const deletedProducts = products
+      ?.filter((item: any) => item.quantity < 1)
+      .map((item: IOrderProduct) => ({
+        orderProductId: item.id,
+        quantity: item.quantity,
+      }));
+
+    const newStatusOrder =
+      deletedProducts?.length || 0 > 0
+        ? OrderStatus.enviado
+        : OrderStatus.canceladoCliente;
 
     try {
-      const response = await api.delete(`order/${orderData?.id}`, {
-        data: {
-          newStatusOrder: OrderStatus.enviado,
-          productsToDelete,
-        },
+      const response = await api.put(`order/${orderData?.id}`, {
+        newStatusOrder,
+        products: updatedProducts,
       });
 
-      if (response.status === 204) {
+      if (response.status === 200) {
         setShowToast(true);
-        setToastMessageType(IToastType.warning);
-        setToastMessage(`Produto deletado com sucesso!`);
+        setToastMessageType(IToastType.success);
+        setToastMessage(`Pedido enviado com sucesso!`);
+
+        localStorage.removeItem('visitorUuid');
 
         setTimeout(() => {
           navigate(`/${companyId}`);
-          window.location.reload();
         }, 5000);
       }
     } catch (err) {
