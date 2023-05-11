@@ -3,10 +3,10 @@ import { CartBox, Container, HoldLocationAndCart, LocationBox } from './style';
 import { IOrder } from '../../utils/Interface/Order';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useContext } from 'react';
-import { OrderContext } from '../../shared/OrderContext';
+import { GlobalContext } from '../../shared/GlobalContext';
 
 export const Header = () => {
-  const { orderData } = useContext(OrderContext);
+  const { orderData } = useContext(GlobalContext);
   const navigate = useNavigate();
   const { companyId } = useParams();
 

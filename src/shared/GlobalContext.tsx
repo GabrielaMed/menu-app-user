@@ -2,20 +2,24 @@ import { ReactNode, createContext, useState } from 'react';
 import { IOrder } from '../utils/Interface/Order';
 import { IToastType } from '../utils/Interface/Toast';
 import { ToastMessage } from '../components/Toast';
+import { IProduct } from '../utils/Interface/Product';
 
-type OrderContextData = {
+type GlobalContextData = {
   orderData?: IOrder;
   setOrderData: (orderData: any) => void;
+  productsData?: IProduct[];
+  setProductsData: (productsData: IProduct[]) => void;
 };
 
-export const OrderContext = createContext({} as OrderContextData);
+export const GlobalContext = createContext({} as GlobalContextData);
 
 type Props = {
   children: ReactNode;
 };
 
-export function OrderProvider({ children }: Props) {
+export function GlobalProvider({ children }: Props) {
   const [orderData, setOrderData] = useState<IOrder>();
+  const [productsData, setProductsData] = useState<IProduct[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
     IToastType.unknow
@@ -23,7 +27,9 @@ export function OrderProvider({ children }: Props) {
   const [toastMessage, setToastMessage] = useState('');
 
   return (
-    <OrderContext.Provider value={{ orderData, setOrderData }}>
+    <GlobalContext.Provider
+      value={{ orderData, setOrderData, productsData, setProductsData }}
+    >
       <ToastMessage
         setShowToast={setShowToast}
         showToast={showToast}
@@ -31,6 +37,6 @@ export function OrderProvider({ children }: Props) {
         toastMessageType={toastMessageType}
       />
       {children}
-    </OrderContext.Provider>
+    </GlobalContext.Provider>
   );
 }

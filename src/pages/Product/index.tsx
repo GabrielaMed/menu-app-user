@@ -32,11 +32,11 @@ import { IOrder } from '../../utils/Interface/Order';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
 import { ToastMessage } from '../../components/Toast';
 import { IOrderProduct } from '../../utils/Interface/OrderProduct';
-import { OrderContext } from '../../shared/OrderContext';
+import { GlobalContext } from '../../shared/GlobalContext';
 
 export const Product = () => {
   const [productData, setProductData] = useState<IProduct>({});
-  const { orderData, setOrderData } = useContext(OrderContext);
+  const { orderData, setOrderData, productsData } = useContext(GlobalContext);
   const [orderExists, setOrderExists] = useState<IOrder>();
   const [showToast, setShowToast] = useState(false);
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
@@ -45,74 +45,35 @@ export const Product = () => {
   const [toastMessage, setToastMessage] = useState('');
   const { productId, companyId } = useParams();
   const [productQuantity, setProductQuantity] = useState(1);
-  const total = productData.additionals?.reduce(
-    (acc, additional) =>
-      acc + (additional?.price ? additional.price * additional.quantity : 0),
-    0
-  );
+  const total = Array.isArray(productData.additionals)
+    ? productData.additionals.reduce(
+        (acc, additional) =>
+          acc +
+          (additional?.price ? additional.price * additional.quantity : 0),
+        0
+      )
+    : 0;
   const navigate = useNavigate();
   const [observation, setObservation] = useState('');
   let visitorUuid = localStorage.getItem('visitorUuid');
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get(`product/${productId}`);
+    const product: any = productsData?.find(
+      (product) => product.id === productId
+    );
 
-        if (response.data) {
-          const { name, description, price } = response.data[0];
+    if (product) {
+      const additionals = product.Additional_in_Product.map((item: any) => ({
+        ...item.additional,
+        quantity: 0,
+      }));
 
-          setProductData({ name, description, price });
-        }
-      } catch (err) {
-        if (err instanceof AxiosError) {
-          setShowToast(true);
-          setToastMessageType(IToastType.error);
-          setToastMessage(`Error: ${err?.response?.data}`);
-        }
-      }
+      delete product.Additional_in_Product;
 
-      try {
-        const responseAdditional = await api.get(
-          `product/${productId}/additionals`
-        );
-
-        if (responseAdditional.data.additionals) {
-          setProductData((prevState: IProduct) => ({
-            ...prevState,
-            additional: responseAdditional.data.additionals.map(
-              (additional: IAdditional) => ({ ...additional, quantity: 0 })
-            ),
-          }));
-        }
-      } catch (err) {
-        if (err instanceof AxiosError) {
-          setShowToast(true);
-          setToastMessageType(IToastType.error);
-          setToastMessage(`Error: ${err?.response?.data}`);
-        }
-      }
-
-      try {
-        const responseImages = await api.get(`product/${productId}/image`);
-
-        if (responseImages.data) {
-          setProductData((state: any) => ({
-            ...state,
-            image: responseImages.data,
-          }));
-        }
-      } catch (err) {
-        if (err instanceof AxiosError) {
-          setShowToast(true);
-          setToastMessageType(IToastType.error);
-          setToastMessage(`Error: ${err?.response?.data}`);
-        }
-      }
-    };
-
-    if (productId) {
-      fetchData();
+      setProductData({
+        ...product,
+        additionals,
+      });
     }
   }, [productId]);
 
@@ -199,13 +160,10 @@ export const Product = () => {
       );
 
       if (response.data) {
-        const orderIniciado = response.data.filter(
-          (item: IOrder) => item.statusOrder === OrderStatus.iniciado
-        )[0];
-        setOrderExists(orderIniciado);
-      } else {
-        await handleCreateOrder();
+        setOrderExists(response.data[0]);
       }
+
+      await handleCreateOrder();
     } catch (err) {
       if (err instanceof AxiosError) {
         setShowToast(true);
@@ -224,6 +182,8 @@ export const Product = () => {
 
     relates();
   }, [orderExists]);
+
+  console.log('PRODUCTSDATA', productData);
 
   return (
     <>
@@ -298,7 +258,7 @@ export const Product = () => {
                         onClick={() =>
                           setProductData((state) => ({
                             ...state,
-                            additional: state?.additionals?.map((product) =>
+                            additionals: state?.additionals?.map((product) =>
                               item.id === product.id && item.quantity > 0
                                 ? { ...item, quantity: item?.quantity - 1 }
                                 : product
@@ -312,7 +272,7 @@ export const Product = () => {
                         onClick={() =>
                           setProductData((state) => ({
                             ...state,
-                            additional: state?.additionals?.map((product) =>
+                            additionals: state?.additionals?.map((product) =>
                               item.id === product.id
                                 ? { ...item, quantity: item?.quantity + 1 }
                                 : product

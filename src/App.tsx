@@ -2,13 +2,13 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { AppRoutes } from './routes';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { OrderProvider } from './shared/OrderContext';
+import { GlobalProvider } from './shared/GlobalContext';
 
 const App = () => (
   <Router>
-    <OrderProvider>
+    <GlobalProvider>
       <AppRoutes />
-    </OrderProvider>
+    </GlobalProvider>
   </Router>
 );
 
