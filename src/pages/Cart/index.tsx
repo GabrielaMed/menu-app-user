@@ -47,11 +47,14 @@ export const Cart = () => {
     const productTotal =
       (orderProducts?.product?.price ?? 0) * (orderProducts?.quantity ?? 0);
 
-    const additionalTotal = orderProducts?.additionals?.reduce(
-      (acc, additional) =>
-        acc + (additional?.price ? additional.price * additional.quantity : 0),
-      0
-    );
+    const additionalTotal = orderProducts?.additionals
+      ? Object.values(orderProducts.additionals).reduce(
+          (acc, additional) =>
+            acc +
+            (additional?.price ? additional.price * additional.quantity : 0),
+          0
+        )
+      : 0;
 
     return acc + productTotal + (additionalTotal ?? 0);
   }, 0);
@@ -131,8 +134,6 @@ export const Cart = () => {
           orderProductId,
         },
       });
-
-      console.log('RESPO', response);
 
       if (response.status === 204) {
         setShowToast(true);
@@ -229,7 +230,7 @@ export const Cart = () => {
                           <img
                             src={
                               process.env.REACT_APP_IMAGE_URL! +
-                              order.product.Image[0].fileName
+                              order.product.Image
                             }
                             alt=''
                           />
@@ -247,7 +248,7 @@ export const Cart = () => {
                             })}
                           </strong>
                         </ProductInfo>
-                        {order.additionals
+                        {Array.isArray(order.additionals)
                           ? order.additionals.map((additional, idx) => (
                               <OrderInfoAdditionals key={idx}>
                                 <strong>Adicionais: </strong>

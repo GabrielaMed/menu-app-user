@@ -27,16 +27,14 @@ import { IToastType } from '../../utils/Interface/Toast';
 import { IProduct } from '../../utils/Interface/Product';
 import { AxiosError } from 'axios';
 import { Carousel } from 'react-bootstrap';
-import { IAdditional } from '../../utils/Interface/Additional';
 import { IOrder } from '../../utils/Interface/Order';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
 import { ToastMessage } from '../../components/Toast';
-import { IOrderProduct } from '../../utils/Interface/OrderProduct';
 import { GlobalContext } from '../../shared/GlobalContext';
 
 export const Product = () => {
   const [productData, setProductData] = useState<IProduct>({});
-  const { orderData, setOrderData, productsData } = useContext(GlobalContext);
+  const { orderData, setOrderData } = useContext(GlobalContext);
   const [orderExists, setOrderExists] = useState<IOrder>();
   const [showToast, setShowToast] = useState(false);
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
@@ -45,35 +43,41 @@ export const Product = () => {
   const [toastMessage, setToastMessage] = useState('');
   const { productId, companyId } = useParams();
   const [productQuantity, setProductQuantity] = useState(1);
-  const total = Array.isArray(productData.additionals)
-    ? productData.additionals.reduce(
-        (acc, additional) =>
-          acc +
-          (additional?.price ? additional.price * additional.quantity : 0),
-        0
-      )
-    : 0;
+  const total = productData.additionals?.reduce(
+    (acc, additional) =>
+      acc + (additional?.price ? additional.price * additional.quantity : 0),
+    0
+  );
   const navigate = useNavigate();
   const [observation, setObservation] = useState('');
   let visitorUuid = localStorage.getItem('visitorUuid');
 
   useEffect(() => {
-    const product: any = productsData?.find(
-      (product) => product.id === productId
-    );
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`product/${productId}`);
 
-    if (product) {
-      const additionals = product.Additional_in_Product.map((item: any) => ({
-        ...item.additional,
-        quantity: 0,
-      }));
+        if (response.data) {
+          const { id, name, description, price, Additional_in_Product, Image } =
+            response.data[0];
+          const additionals = Additional_in_Product.map((item: any) => ({
+            ...item.additional,
+            quantity: 0,
+          }));
 
-      delete product.Additional_in_Product;
+          setProductData({ id, name, description, price, Image, additionals });
+        }
+      } catch (err) {
+        if (err instanceof AxiosError) {
+          setShowToast(true);
+          setToastMessageType(IToastType.error);
+          setToastMessage(`Error: ${err?.response?.data}`);
+        }
+      }
+    };
 
-      setProductData({
-        ...product,
-        additionals,
-      });
+    if (productId) {
+      fetchData();
     }
   }, [productId]);
 
@@ -116,14 +120,19 @@ export const Product = () => {
       });
 
       if (response.data) {
-        const { order } = response.data.orderProduct;
+        let order;
 
+        if (response.data.order) {
+          order = response.data.order;
+        } else if (response.data.orderProduct) {
+          order = response.data.orderProduct.order;
+        }
         const products = order.Order_products.map((order: any) => ({
           id: order.id,
           product: {
             name: order.product.name,
             price: order.product.price,
-            image: order?.product.Image?.[0]?.fileName,
+            Image: order?.product.Image?.[0]?.fileName,
           },
           additionals: {
             ...order.Order_additional,
@@ -161,9 +170,9 @@ export const Product = () => {
 
       if (response.data) {
         setOrderExists(response.data[0]);
+      } else {
+        await handleCreateOrder();
       }
-
-      await handleCreateOrder();
     } catch (err) {
       if (err instanceof AxiosError) {
         setShowToast(true);
@@ -182,8 +191,6 @@ export const Product = () => {
 
     relates();
   }, [orderExists]);
-
-  console.log('PRODUCTSDATA', productData);
 
   return (
     <>
