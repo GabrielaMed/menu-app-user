@@ -96,6 +96,10 @@ export const OrderInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+
+  @media (min-width: 390px) {
+    width: 100%;
+  }
 `;
 
 export const OrderInfoButtonsBox = styled.div`
