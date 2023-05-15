@@ -34,7 +34,7 @@ import { GlobalContext } from '../../shared/GlobalContext';
 
 export const Product = () => {
   const [productData, setProductData] = useState<IProduct>({});
-  const { orderData, setOrderData } = useContext(GlobalContext);
+  const { orderData, setOrderData, visitorUuid } = useContext(GlobalContext);
   const [orderExists, setOrderExists] = useState<IOrder>();
   const [showToast, setShowToast] = useState(false);
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
@@ -50,7 +50,6 @@ export const Product = () => {
   );
   const navigate = useNavigate();
   const [observation, setObservation] = useState('');
-  let visitorUuid = localStorage.getItem('visitorUuid');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,18 +126,25 @@ export const Product = () => {
         } else if (response.data.orderProduct) {
           order = response.data.orderProduct.order;
         }
+
         const products = order.Order_products.map((order: any) => ({
           id: order.id,
           product: {
+            id: order.product.id,
             name: order.product.name,
             price: order.product.price,
-            Image: order?.product.Image?.[0]?.fileName,
-          },
-          additionals: {
-            ...order.Order_additional,
+            Image: order.product.Image,
           },
           observation: order.observation,
           quantity: order.quantity,
+          additionals: Object.values(order.Order_additional).map(
+            (item: any) => ({
+              id: item.additional.id,
+              name: item.additional.name,
+              price: item.additional.price,
+              quantity: item.quantity,
+            })
+          ),
         }));
 
         const { statusOrder, id } = order;
