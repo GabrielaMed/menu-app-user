@@ -15,10 +15,6 @@ export const Header = () => {
       <span>LOGO</span>
 
       <HoldLocationAndCart>
-        <LocationBox>
-          <MdLocationOn />
-          Campo Grande, MS
-        </LocationBox>
         {orderData?.productsQuantity ?? 0 > 0 ? (
           <CartBox
             onClick={() => {
