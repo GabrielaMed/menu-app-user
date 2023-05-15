@@ -1,6 +1,6 @@
 export enum OrderStatus {
-  canceladoRestaurante = 'cancelado - restaurante',
-  canceladoCliente = 'cancelado - cliente',
+  canceladoRestaurante = 'canceladoRestaurante',
+  canceladoCliente = 'canceladoCliente',
   iniciado = 'iniciado',
   enviado = 'enviado',
   em_producao = 'em produção',
