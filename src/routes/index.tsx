@@ -5,7 +5,8 @@ import { Cart } from '../pages/Cart';
 
 export const AppRoutes = () => (
   <Routes>
-    <Route path='/:companyId' element={<Home />} />
+    <Route path='/:companyIdURL/:tableNumberURL' element={<Home />} />
+    <Route path='/' element={<Home />} />
     <Route path='/:companyId/product/:productId' element={<Product />} />
     <Route path='/:companyId/cart' element={<Cart />} />
   </Routes>

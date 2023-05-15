@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Card,
   Cards,
@@ -25,23 +25,33 @@ import { OrderStatus } from '../../utils/Enum/OrderStatus';
 import { GlobalContext } from '../../shared/GlobalContext';
 
 export const Home = () => {
-  const companyId = `${process.env.REACT_APP_COMPANY_ID}`;
+  const { companyIdURL, tableNumberURL } = useParams();
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
-  const { setOrderData, productsData, setProductsData } =
-    useContext(GlobalContext);
-
+  const {
+    setOrderData,
+    productsData,
+    setProductsData,
+    visitorUuid,
+    companyId,
+    setCompanyId,
+    tableNumber,
+    setTableNumber,
+  } = useContext(GlobalContext);
   const navigate = useNavigate();
-  let visitorUuid = localStorage.getItem('visitorUuid');
 
-  if (!visitorUuid) {
-    visitorUuid = uuidv4();
-    localStorage.setItem('visitorUuid', visitorUuid);
-  }
+  useEffect(() => {
+    if (companyIdURL && tableNumberURL) {
+      setCompanyId(companyIdURL ?? '');
+      setTableNumber(Number(tableNumberURL) ?? 0);
+
+      navigate('/');
+    }
+  }, [companyIdURL, tableNumberURL]);
 
   useEffect(() => {
     const fetchData = async () => {
