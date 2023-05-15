@@ -42,7 +42,8 @@ export const Cart = () => {
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
-  const { orderData, setOrderData } = useContext(GlobalContext);
+  const { orderData, setOrderData, visitorUuid, clearVisitorUuid } =
+    useContext(GlobalContext);
   const total = orderData?.products?.reduce((acc, orderProducts) => {
     const productTotal =
       (orderProducts?.product?.price ?? 0) * (orderProducts?.quantity ?? 0);
@@ -120,22 +121,30 @@ export const Cart = () => {
     handleDeleteProduct(productId);
   };
 
-  const handleDeleteProduct = async (productId: string | undefined) => {
-    if (!productId) return;
-    const { products } = orderData || {};
-
-    const orderProductId = products?.find(
-      (item: any) => item.product.id === productId
-    )?.id;
+  const handleDeleteProduct = async (orderProductId: string | undefined) => {
+    if (!orderProductId || !orderData) return;
 
     try {
       const response = await api.delete(`order/${orderData?.id}`, {
         data: {
           orderProductId,
+          visitorUuid,
+          companyId,
         },
       });
 
-      if (response.status === 204) {
+      if (response.status === 200) {
+        const orderIniciado = response.data.filter(
+          (item: IOrder) => item.statusOrder === OrderStatus.iniciado
+        )[0];
+
+        setOrderData({
+          id: orderIniciado.id,
+          products: [...orderIniciado.Order_products],
+          statusOrder: orderIniciado.statusOrder,
+          productsQuantity: orderIniciado._count.Order_products,
+        });
+
         setShowToast(true);
         setToastMessageType(IToastType.warning);
         setToastMessage(`Produto excluido!`);
@@ -160,17 +169,13 @@ export const Cart = () => {
         quantity: item.quantity,
       }));
 
-    const deletedProducts = products
-      ?.filter((item: any) => item.quantity < 1)
-      .map((item: IOrderProduct) => ({
-        orderProductId: item.id,
-        quantity: item.quantity,
-      }));
+    const allProductsZeroQuantity = products?.every(
+      (item: any) => item.quantity === 0
+    );
 
-    const newStatusOrder =
-      deletedProducts?.length || 0 > 0
-        ? OrderStatus.enviado
-        : OrderStatus.canceladoCliente;
+    const newStatusOrder = allProductsZeroQuantity
+      ? OrderStatus.canceladoCliente
+      : OrderStatus.enviado;
 
     try {
       const response = await api.put(`order/${orderData?.id}`, {
@@ -178,16 +183,29 @@ export const Cart = () => {
         products: updatedProducts,
       });
 
-      if (response.status === 200) {
+      if (response.status === 200 && newStatusOrder === OrderStatus.enviado) {
         setShowToast(true);
         setToastMessageType(IToastType.success);
         setToastMessage(`Pedido enviado com sucesso!`);
 
-        localStorage.removeItem('visitorUuid');
+        //clearVisitorUuid();
 
         setTimeout(() => {
           navigate(`/${companyId}`);
-        }, 5000);
+        }, 4000);
+      } else if (
+        response.status === 200 &&
+        newStatusOrder === OrderStatus.canceladoCliente
+      ) {
+        setShowToast(true);
+        setToastMessageType(IToastType.warning);
+        setToastMessage(`Pedido cancelado!`);
+
+        //clearVisitorUuid();
+
+        setTimeout(() => {
+          navigate(`/${companyId}`);
+        }, 4000);
       }
     } catch (err) {
       console.log('ERRO', err);
@@ -230,7 +248,7 @@ export const Cart = () => {
                           <img
                             src={
                               process.env.REACT_APP_IMAGE_URL! +
-                              order.product.Image
+                              order.product.Image[0].fileName
                             }
                             alt=''
                           />
@@ -248,27 +266,30 @@ export const Cart = () => {
                             })}
                           </strong>
                         </ProductInfo>
-                        {Array.isArray(order.additionals)
-                          ? order.additionals.map((additional, idx) => (
-                              <OrderInfoAdditionals key={idx}>
-                                <strong>Adicionais: </strong>
-                                <span>
-                                  <span>
-                                    {additional.quantity} - {additional.name}
+                        {(order?.additionals?.length ?? 0) > 0 ? (
+                          <OrderInfoAdditionals>
+                            <strong>Adicionais: </strong>
+                            {Array.isArray(order.additionals)
+                              ? order.additionals.map((additional, idx) => (
+                                  <span key={idx}>
+                                    <span>
+                                      {additional.quantity} - {additional.name}
+                                    </span>
+                                    <span>
+                                      {Number(
+                                        additional.quantity *
+                                          (additional.price ?? 0)
+                                      ).toLocaleString('pt-BR', {
+                                        style: 'currency',
+                                        currency: 'BRL',
+                                      })}
+                                    </span>
                                   </span>
-                                  <span>
-                                    {Number(
-                                      additional.quantity *
-                                        (additional.price ?? 0)
-                                    ).toLocaleString('pt-BR', {
-                                      style: 'currency',
-                                      currency: 'BRL',
-                                    })}
-                                  </span>
-                                </span>
-                              </OrderInfoAdditionals>
-                            ))
-                          : null}
+                                ))
+                              : null}
+                          </OrderInfoAdditionals>
+                        ) : null}
+
                         {order.observation ? (
                           <OrderInfoObservation>
                             Observação: {order.observation}
@@ -294,7 +315,7 @@ export const Cart = () => {
                           </OrderInfoButtons>
                           <OrderInfoButtons
                             onClick={() =>
-                              handleRemoveAllProductQuantity(order?.product.id)
+                              handleRemoveAllProductQuantity(order?.id)
                             }
                           >
                             <MdDeleteOutline color='#8047F8' />
