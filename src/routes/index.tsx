@@ -7,7 +7,7 @@ export const AppRoutes = () => (
   <Routes>
     <Route path='/:companyIdURL/:tableNumberURL' element={<Home />} />
     <Route path='/' element={<Home />} />
-    <Route path='/:companyId/product/:productId' element={<Product />} />
-    <Route path='/:companyId/cart' element={<Cart />} />
+    <Route path='/product' element={<Product />} />
+    <Route path='/cart' element={<Cart />} />
   </Routes>
 );
