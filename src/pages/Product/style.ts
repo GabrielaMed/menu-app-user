@@ -10,7 +10,7 @@ export const Container = styled.div`
 export const Navbar = styled.div`
   width: 100%;
   height: 4rem;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #e6e5e5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,7 +76,7 @@ export const Divider = styled.div`
 
   span {
     font-size: 14px;
-    color: #999898;
+    color: #7a7979;
   }
 `;
 

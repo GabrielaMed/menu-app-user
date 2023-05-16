@@ -8,7 +8,7 @@ export const Container = styled.header`
   justify-content: space-between;
   padding: 1rem;
   box-sizing: border-box;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #e6e5e5;
 `;
 
 export const CartBox = styled.button`
