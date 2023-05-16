@@ -39,8 +39,9 @@ export const Home = () => {
     visitorUuid,
     companyId,
     setCompanyId,
-    tableNumber,
     setTableNumber,
+    setProductId,
+    tableNumber,
   } = useContext(GlobalContext);
   const navigate = useNavigate();
 
@@ -82,17 +83,31 @@ export const Home = () => {
           `order/visitor/${visitorUuid}/${companyId}`
         );
 
-        if (response.data) {
-          const orderIniciado = response.data.filter(
-            (item: IOrder) => item.statusOrder === OrderStatus.iniciado
-          )[0];
-
+        if (response.data[0]) {
           setOrderData({
-            id: orderIniciado.id,
-            products: [...orderIniciado.Order_products],
-            statusOrder: orderIniciado.statusOrder,
-            productsQuantity: orderIniciado._count.Order_products,
+            id: response.data[0].id,
+            products: [...response.data[0].Order_products],
+            statusOrder: response.data[0].statusOrder,
+            productsQuantity: response.data[0]._count.Order_products,
           });
+        } else {
+          try {
+            const response = await api.post('order', {
+              visitorUuid,
+              statusOrder: OrderStatus.iniciado,
+              companyId,
+              tableNumber,
+            });
+            if (response.data) {
+              return setOrderData(response.data);
+            }
+          } catch (err) {
+            if (err instanceof AxiosError) {
+              setShowToast(true);
+              setToastMessageType(IToastType.error);
+              setToastMessage(`Error: ${err?.response?.data}`);
+            }
+          }
         }
       } catch (err) {
         if (err instanceof AxiosError) {
@@ -103,10 +118,10 @@ export const Home = () => {
       }
     };
 
-    if (visitorUuid) {
+    if (visitorUuid && companyId) {
       fetchData();
     }
-  }, [visitorUuid]);
+  }, [visitorUuid, companyId]);
 
   return (
     <Container>
@@ -115,7 +130,7 @@ export const Home = () => {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <ReactLoading
             type={'cylon'}
-            color={'#1b4332'}
+            color={'#4B2995'}
             height={'150px'}
             width={'150px'}
           />
@@ -159,9 +174,10 @@ export const Home = () => {
                     </strong>
                   </span>
                   <CartBox
-                    onClick={() =>
-                      navigate(`/${companyId}/product/${product.id}`)
-                    }
+                    onClick={() => {
+                      setProductId(String(product.id));
+                      navigate(`/product`);
+                    }}
                   >
                     <MdShoppingCart color='white' />
                   </CartBox>

@@ -34,14 +34,14 @@ import { GlobalContext } from '../../shared/GlobalContext';
 
 export const Product = () => {
   const [productData, setProductData] = useState<IProduct>({});
-  const { orderData, setOrderData, visitorUuid } = useContext(GlobalContext);
+  const { setOrderData, visitorUuid, companyId, tableNumber, productId } =
+    useContext(GlobalContext);
   const [orderExists, setOrderExists] = useState<IOrder>();
   const [showToast, setShowToast] = useState(false);
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
-  const { productId, companyId } = useParams();
   const [productQuantity, setProductQuantity] = useState(1);
   const total = productData.additionals?.reduce(
     (acc, additional) =>
@@ -79,26 +79,6 @@ export const Product = () => {
       fetchData();
     }
   }, [productId]);
-
-  const handleCreateOrder = async () => {
-    try {
-      const response = await api.post('order', {
-        visitorUuid,
-        statusOrder: OrderStatus.iniciado,
-        companyId,
-        observation,
-      });
-      if (response.data) {
-        return setOrderData(response.data);
-      }
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setShowToast(true);
-        setToastMessageType(IToastType.error);
-        setToastMessage(`Error: ${err?.response?.data}`);
-      }
-    }
-  };
 
   const handleRelateProductAndOrder = async (orderId: string) => {
     try {
@@ -156,7 +136,7 @@ export const Product = () => {
         };
 
         setOrderData(orderData);
-        navigate(`/${companyId}/cart`);
+        navigate(`/cart`);
       }
     } catch (err) {
       console.log('ERRO', err);
@@ -176,8 +156,6 @@ export const Product = () => {
 
       if (response.data) {
         setOrderExists(response.data[0]);
-      } else {
-        await handleCreateOrder();
       }
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -212,7 +190,7 @@ export const Product = () => {
             <MdArrowBack
               size={24}
               style={{ cursor: 'pointer' }}
-              onClick={() => navigate(`/${companyId}}`)}
+              onClick={() => navigate(`/`)}
             />
           </span>
           <span>Detalhes do produto</span>
