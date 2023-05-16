@@ -11,9 +11,11 @@ type GlobalContextData = {
   productsData?: IProduct[];
   setProductsData: (productsData: IProduct[]) => void;
   visitorUuid?: string;
-  clearVisitorUuid?: () => void;
+  clearVisitorUuid: () => void;
   companyId: string;
   setCompanyId: (companyId: string) => void;
+  productId: string;
+  setProductId: (productId: string) => void;
   tableNumber: number;
   setTableNumber: (tableNumber: number) => void;
 };
@@ -26,6 +28,7 @@ type Props = {
 
 export const GlobalContextProvider = ({ children }: Props) => {
   const [companyId, setCompanyId] = useState('');
+  const [productId, setProductId] = useState('');
   const [tableNumber, setTableNumber] = useState(0);
   const [orderData, setOrderData] = useState<IOrder>();
   const [productsData, setProductsData] = useState<IProduct[]>([]);
@@ -56,6 +59,8 @@ export const GlobalContextProvider = ({ children }: Props) => {
         setCompanyId,
         tableNumber,
         setTableNumber,
+        productId,
+        setProductId,
       }}
     >
       {children}
