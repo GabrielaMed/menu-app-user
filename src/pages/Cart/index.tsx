@@ -36,13 +36,12 @@ import { IOrderProduct } from '../../utils/Interface/OrderProduct';
 
 export const Cart = () => {
   const navigate = useNavigate();
-  const { companyId } = useParams();
   const [showToast, setShowToast] = useState(false);
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
-  const { orderData, setOrderData, visitorUuid, clearVisitorUuid } =
+  const { orderData, setOrderData, visitorUuid, clearVisitorUuid, companyId } =
     useContext(GlobalContext);
   const total = orderData?.products?.reduce((acc, orderProducts) => {
     const productTotal =
@@ -201,10 +200,10 @@ export const Cart = () => {
         setToastMessageType(IToastType.warning);
         setToastMessage(`Pedido cancelado!`);
 
-        //clearVisitorUuid();
+        clearVisitorUuid();
 
         setTimeout(() => {
-          navigate(`/${companyId}`);
+          navigate(`/`);
         }, 4000);
       }
     } catch (err) {
@@ -231,7 +230,7 @@ export const Cart = () => {
             <MdArrowBack
               size={24}
               style={{ cursor: 'pointer' }}
-              onClick={() => navigate(`/${companyId}}`)}
+              onClick={() => navigate(`/`)}
             />
           </span>
           <span>Carrinho</span>
