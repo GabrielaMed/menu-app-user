@@ -11,6 +11,15 @@ export const Container = styled.header`
   border-bottom: 1px solid #e6e5e5;
 `;
 
+export const LogoImage = styled.div`
+  max-width: 3rem;
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+`;
+
 export const CartBox = styled.button`
   all: unset;
   background: #ebe5f9;

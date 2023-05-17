@@ -1,5 +1,5 @@
 import { MdShoppingCart } from 'react-icons/md';
-import { CartBox, Container, HoldLocationAndCart } from './style';
+import { CartBox, Container, HoldLocationAndCart, LogoImage } from './style';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContext } from 'react';
 import { GlobalContext } from '../../shared/GlobalContext';
@@ -11,7 +11,9 @@ export const Header = () => {
 
   return (
     <Container>
-      <span>LOGO</span>
+      <LogoImage>
+        <img src={process.env.PUBLIC_URL + '/logo192.png'} alt='Logo' />
+      </LogoImage>
 
       <HoldLocationAndCart>
         {
