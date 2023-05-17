@@ -1,17 +1,10 @@
-import {
-  MdAdd,
-  MdArrowBack,
-  MdDelete,
-  MdDeleteOutline,
-  MdRemove,
-} from 'react-icons/md';
+import { MdAdd, MdArrowBack, MdDeleteOutline, MdRemove } from 'react-icons/md';
 import {
   Card,
   ConfirmButton,
   Container,
   Content,
   Footer,
-  GoBack,
   ImageBox,
   Navbar,
   Order,
@@ -23,8 +16,8 @@ import {
   OrderTotalPrice,
   ProductInfo,
 } from './style';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useState, useContext } from 'react';
 import { ToastMessage } from '../../components/Toast';
 import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';

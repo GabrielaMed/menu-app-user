@@ -14,23 +14,23 @@ import {
 import { Header } from '../../components/Header';
 import { AxiosError } from 'axios';
 import { useEffect, useState, useContext } from 'react';
-import { IProduct } from '../../utils/Interface/Product';
 import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import ReactLoading from 'react-loading';
 import { MdShoppingCart } from 'react-icons/md';
-import { v4 as uuidv4 } from 'uuid';
-import { IOrder } from '../../utils/Interface/Order';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
 import { GlobalContext } from '../../shared/GlobalContext';
 
 export const Home = () => {
   const { companyIdURL, tableNumberURL } = useParams();
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
+  // eslint-disable-next-line
   const [showToast, setShowToast] = useState(false);
+  // eslint-disable-next-line
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
     IToastType.unknow
   );
+  // eslint-disable-next-line
   const [toastMessage, setToastMessage] = useState('');
   const {
     setOrderData,
@@ -52,6 +52,7 @@ export const Home = () => {
 
       navigate('/');
     }
+    // eslint-disable-next-line
   }, [companyIdURL, tableNumberURL]);
 
   useEffect(() => {
@@ -74,6 +75,7 @@ export const Home = () => {
     if (companyId) {
       fetchData();
     }
+    // eslint-disable-next-line
   }, [companyId]);
 
   useEffect(() => {
@@ -121,6 +123,7 @@ export const Home = () => {
     if (visitorUuid && companyId) {
       fetchData();
     }
+    // eslint-disable-next-line
   }, [visitorUuid, companyId]);
 
   return (

@@ -1,7 +1,5 @@
-import { ReactNode, createContext, useState, useEffect } from 'react';
+import { ReactNode, createContext, useState } from 'react';
 import { IOrder } from '../utils/Interface/Order';
-import { IToastType } from '../utils/Interface/Toast';
-import { ToastMessage } from '../components/Toast';
 import { IProduct } from '../utils/Interface/Product';
 import { v4 as uuidv4 } from 'uuid';
 

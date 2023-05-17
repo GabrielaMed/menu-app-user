@@ -20,7 +20,7 @@ import {
   ObservationTextArea,
   ProductImage,
 } from './style';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { useContext, useEffect, useState } from 'react';
 import { IToastType } from '../../utils/Interface/Toast';
@@ -28,13 +28,12 @@ import { IProduct } from '../../utils/Interface/Product';
 import { AxiosError } from 'axios';
 import { Carousel } from 'react-bootstrap';
 import { IOrder } from '../../utils/Interface/Order';
-import { OrderStatus } from '../../utils/Enum/OrderStatus';
 import { ToastMessage } from '../../components/Toast';
 import { GlobalContext } from '../../shared/GlobalContext';
 
 export const Product = () => {
   const [productData, setProductData] = useState<IProduct>({});
-  const { setOrderData, visitorUuid, companyId, tableNumber, productId } =
+  const { setOrderData, visitorUuid, companyId, productId } =
     useContext(GlobalContext);
   const [orderExists, setOrderExists] = useState<IOrder>();
   const [showToast, setShowToast] = useState(false);
@@ -174,6 +173,7 @@ export const Product = () => {
     };
 
     relates();
+    // eslint-disable-next-line
   }, [orderExists]);
 
   return (
