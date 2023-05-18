@@ -22,7 +22,7 @@ import {
 } from './style';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { IToastType } from '../../utils/Interface/Toast';
 import { IProduct } from '../../utils/Interface/Product';
 import { AxiosError } from 'axios';
@@ -49,6 +49,13 @@ export const Product = () => {
   );
   const navigate = useNavigate();
   const [observation, setObservation] = useState('');
+  const observationTextAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleDividerClick = () => {
+    if (observationTextAreaRef.current) {
+      observationTextAreaRef.current.focus();
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -279,9 +286,10 @@ export const Product = () => {
           </>
         ) : null}
 
-        <Divider>Alguma observação?</Divider>
+        <Divider onClick={handleDividerClick}>Alguma observação?</Divider>
         <ObservationBox>
           <ObservationTextArea
+            ref={observationTextAreaRef}
             placeholder=' Ex: tirar cebola, tirar tomate...'
             onChange={(e) => setObservation(e.target.value)}
           ></ObservationTextArea>
