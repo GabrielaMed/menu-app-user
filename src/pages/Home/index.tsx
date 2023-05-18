@@ -144,7 +144,13 @@ export const Home = () => {
           <Title>Produtos</Title>
           <Cards>
             {productsData?.map((product) => (
-              <Card key={product.id}>
+              <Card
+                key={product.id}
+                onClick={() => {
+                  setProductId(String(product.id));
+                  navigate(`/product`);
+                }}
+              >
                 {product?.Image ? (
                   <ImageBox>
                     <img
@@ -176,12 +182,7 @@ export const Home = () => {
                       })}
                     </strong>
                   </span>
-                  <CartBox
-                    onClick={() => {
-                      setProductId(String(product.id));
-                      navigate(`/product`);
-                    }}
-                  >
+                  <CartBox>
                     <MdShoppingCart color='white' />
                   </CartBox>
                 </FooterBox>

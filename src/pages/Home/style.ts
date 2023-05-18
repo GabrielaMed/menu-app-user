@@ -40,6 +40,7 @@ export const Card = styled.div`
   box-sizing: border-box;
   background-color: #f3f2f2;
   border-radius: 6px 36px;
+  cursor: pointer;
 `;
 
 export const ImageBox = styled.div`
