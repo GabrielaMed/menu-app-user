@@ -17,7 +17,7 @@ import {
   ProductInfo,
 } from './style';
 import { useNavigate } from 'react-router-dom';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import { ToastMessage } from '../../components/Toast';
 import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
