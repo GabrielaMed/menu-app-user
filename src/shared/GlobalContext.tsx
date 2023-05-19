@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useState } from 'react';
+import { ReactNode, createContext, useState, useEffect } from 'react';
 import { IOrder } from '../utils/Interface/Order';
 import { IProduct } from '../utils/Interface/Product';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,6 +8,7 @@ type GlobalContextData = {
   setOrderData: (orderData: any) => void;
   productsData?: IProduct[];
   setProductsData: (productsData: IProduct[]) => void;
+  clearOrderData: () => void;
   visitorUuid?: string;
   clearVisitorUuid: () => void;
   companyId: string;
@@ -41,7 +42,32 @@ export const GlobalContextProvider = ({ children }: Props) => {
 
   const clearVisitorUuid = () => {
     localStorage.removeItem('visitorUuid');
-    setVisitorUuid('');
+    let uuid = uuidv4();
+    localStorage.setItem('visitorUuid', uuid);
+    const visitorUuid = localStorage.getItem('visitorUuid');
+    setVisitorUuid(String(visitorUuid));
+  };
+
+  useEffect(() => {
+    localStorage.setItem('orderData', JSON.stringify(orderData));
+  }, [orderData]);
+
+  useEffect(() => {
+    const savedOrderData = localStorage.getItem('orderData');
+    if (savedOrderData !== null && savedOrderData !== 'undefined') {
+      try {
+        const parsedData = JSON.parse(savedOrderData);
+
+        setOrderData(parsedData);
+      } catch (error) {
+        console.error('Error parsing orderData from local storage:', error);
+      }
+    }
+  }, []);
+
+  const clearOrderData = () => {
+    localStorage.removeItem('orderData');
+    setOrderData(undefined);
   };
 
   return (
@@ -59,6 +85,7 @@ export const GlobalContextProvider = ({ children }: Props) => {
         setTableNumber,
         productId,
         setProductId,
+        clearOrderData,
       }}
     >
       {children}

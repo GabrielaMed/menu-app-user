@@ -21,14 +21,14 @@ export const Header = () => {
           orderData?.productsQuantity ?? 0 > 0 ? (
             <CartBox
               onClick={() => {
-                navigate(`/${companyId}/cart`);
+                navigate(`/cart`);
               }}
             >
               <span>{orderData?.productsQuantity}</span>
               <MdShoppingCart />
             </CartBox>
           ) : (
-            <CartBox onClick={() => navigate(`/${companyId}/cart`)}>
+            <CartBox onClick={() => navigate(`/cart`)}>
               <MdShoppingCart />
             </CartBox>
           )
