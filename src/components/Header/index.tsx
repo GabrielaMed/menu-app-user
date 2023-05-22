@@ -11,7 +11,7 @@ export const Header = () => {
   return (
     <Container>
       <LogoImage>
-        <img src={process.env.PUBLIC_URL + '/logo192.png'} alt='Logo' />
+        <img src={process.env.PUBLIC_URL + '/icon-192.png'} alt='Logo' />
       </LogoImage>
 
       <HoldLocationAndCart>
