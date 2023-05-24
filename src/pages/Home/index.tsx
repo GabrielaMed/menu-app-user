@@ -23,7 +23,6 @@ import { GlobalContext } from '../../shared/GlobalContext';
 
 export const Home = () => {
   const { companyIdURL, tableNumberURL } = useParams();
-  const [loading] = useState(false);
   // eslint-disable-next-line
   const [showToast, setShowToast] = useState(false);
   // eslint-disable-next-line
@@ -44,8 +43,10 @@ export const Home = () => {
     tableNumber,
   } = useContext(GlobalContext);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     if (companyIdURL && tableNumberURL) {
       setCompanyId(companyIdURL ?? '');
       setTableNumber(Number(tableNumberURL) ?? 0);
@@ -74,6 +75,7 @@ export const Home = () => {
 
     if (companyId) {
       fetchData();
+      setLoading(false);
     }
     // eslint-disable-next-line
   }, [companyId]);
