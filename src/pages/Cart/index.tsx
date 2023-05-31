@@ -182,6 +182,7 @@ export const Cart = () => {
       const response = await api.put(`order/${orderData?.id}`, {
         newStatusOrder,
         products: updatedProducts,
+        total,
       });
 
       if (response.status === 200 && newStatusOrder === OrderStatus.enviado) {
