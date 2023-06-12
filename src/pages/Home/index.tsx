@@ -57,6 +57,12 @@ export const Home = () => {
   }, [companyIdURL, tableNumberURL]);
 
   useEffect(() => {
+    if (companyId) {
+      setLoading(false);
+    }
+  }, [companyId]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await api.get(`${companyId}/product`);
