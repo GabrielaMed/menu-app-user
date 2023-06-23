@@ -3,7 +3,7 @@ import { CartBox, Container, HoldLocationAndCart, LogoImage } from './style';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { GlobalContext } from '../../shared/GlobalContext';
-
+import icon192 from '../../../public/icon-192.png';
 export const Header = () => {
   const { orderData } = useContext(GlobalContext);
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ export const Header = () => {
   return (
     <Container>
       <LogoImage>
-        <img src={process.env.PUBLIC_URL + '/icon-192.png'} alt='Logo' />
+        <img src={icon192} alt='Logo' />
       </LogoImage>
 
       <HoldLocationAndCart>
