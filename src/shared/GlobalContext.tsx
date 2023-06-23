@@ -26,9 +26,16 @@ type Props = {
 };
 
 export const GlobalContextProvider = ({ children }: Props) => {
-  const [companyId, setCompanyId] = useState('');
+  const [companyId, setCompanyId] = useState(() => {
+    const storedCompanyId = localStorage.getItem('companyId');
+    return storedCompanyId ? storedCompanyId : '';
+  });
+
   const [productId, setProductId] = useState('');
-  const [tableNumber, setTableNumber] = useState(0);
+  const [tableNumber, setTableNumber] = useState(() => {
+    const storedTableNumber = localStorage.getItem('tableNumber');
+    return storedTableNumber ? parseInt(storedTableNumber) : 0;
+  });
   const [orderData, setOrderData] = useState<IOrder>();
   const [productsData, setProductsData] = useState<IProduct[]>([]);
   const [visitorUuid, setVisitorUuid] = useState<string>(() => {
@@ -69,6 +76,14 @@ export const GlobalContextProvider = ({ children }: Props) => {
     localStorage.removeItem('orderData');
     setOrderData(undefined);
   };
+
+  useEffect(() => {
+    localStorage.setItem('companyId', companyId);
+  }, [companyId]);
+
+  useEffect(() => {
+    localStorage.setItem('tableNumber', tableNumber.toString());
+  }, [tableNumber]);
 
   return (
     <GlobalContext.Provider
