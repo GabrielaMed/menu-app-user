@@ -14,7 +14,7 @@ export const Content = styled.div`
   align-items: center;
   justify-content: center;
   padding-top: 1rem;
-  padding-inline: 2rem;
+  padding-inline: 1rem;
   gap: 1rem;
 `;
 
