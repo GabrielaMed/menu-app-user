@@ -190,7 +190,6 @@ export const Cart = () => {
         setToastMessageType(IToastType.success);
         setToastMessage(`Pedido enviado com sucesso!`);
 
-        clearVisitorUuid();
         clearOrderData();
         setLoading(true);
 
@@ -205,7 +204,6 @@ export const Cart = () => {
         setToastMessageType(IToastType.warning);
         setToastMessage(`Pedido cancelado!`);
 
-        clearVisitorUuid();
         clearOrderData();
         setLoading(true);
 
