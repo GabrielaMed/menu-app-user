@@ -102,14 +102,13 @@ export const Home = () => {
           });
         } else {
           try {
-            const response = await api.post('order', {
-              visitorUuid,
-              statusOrder: OrderStatus.iniciado,
-              companyId,
+            const response = await api.post(`orders_cart/${visitorUuid}`, {
               tableNumber,
+              companyId,
             });
+
             if (response.data) {
-              return setOrderData(response.data);
+              return setOrderData(response.data.relates);
             }
           } catch (err) {
             if (err instanceof AxiosError) {
