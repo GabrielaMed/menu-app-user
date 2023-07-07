@@ -18,7 +18,6 @@ import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import ReactLoading from 'react-loading';
 import { MdShoppingCart } from 'react-icons/md';
-import { OrderStatus } from '../../utils/Enum/OrderStatus';
 import { GlobalContext } from '../../shared/GlobalContext';
 
 export const Home = () => {

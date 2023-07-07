@@ -36,14 +36,8 @@ export const Cart = () => {
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
-  const {
-    orderData,
-    setOrderData,
-    visitorUuid,
-    clearVisitorUuid,
-    companyId,
-    clearOrderData,
-  } = useContext(GlobalContext);
+  const { orderData, setOrderData, visitorUuid, companyId, clearOrderData } =
+    useContext(GlobalContext);
   const total = orderData?.products?.reduce((acc, orderProducts) => {
     const productTotal =
       (orderProducts?.product?.price ?? 0) * (orderProducts?.quantity ?? 0);
