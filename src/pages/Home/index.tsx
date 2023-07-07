@@ -101,7 +101,7 @@ export const Home = () => {
           });
         } else {
           try {
-            const response = await api.post(`orders_cart/${visitorUuid}`, {
+            const response = await api.post(`orders_card/${visitorUuid}`, {
               tableNumber,
               companyId,
             });
